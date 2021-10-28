@@ -8,6 +8,7 @@ import { createResponse } from "@helper/http-api/response";
 import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 
 export const signUp: APIGatewayProxyHandlerV2 = async (event) => {
+  console.log("EVENT: ");
   log(event);
 
   try {

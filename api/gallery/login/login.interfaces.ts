@@ -11,5 +11,5 @@ export interface AuthenticationFailure {
 export interface UserDBCreds {
   _id: mongoose.Schema.Types.ObjectId;
   email: string;
-  password: string;
+  passwordHash: string;
 }

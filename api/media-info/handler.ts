@@ -1,10 +1,10 @@
-import { errorHandler } from '@helper/http-api/error-handler';
-import { createResponse } from '@helper/http-api/response';
-import { log } from '@helper/logger';
-import { MediaInfoCurlService } from '@services/media-info-curl.service';
-import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
-import { MediaInfoUrl } from './media-info.inteface';
-import { MediaInfoManager } from './media-info.manager';
+import { errorHandler } from "@helper/http-api/error-handler";
+import { createResponse } from "@helper/http-api/response";
+import { log } from "@helper/logger";
+import { MediaInfoCurlService } from "@services/media-info-curl.service";
+import { APIGatewayProxyHandlerV2 } from "aws-lambda";
+import { MediaInfoUrl } from "./media-info.inteface";
+import { MediaInfoManager } from "./media-info.manager";
 
 /**
  * It's required if you use any external executable files like mediainfo-curl
@@ -35,9 +35,11 @@ if (process.env.LAMBDA_TASK_ROOT) {
  * @param context
  */
 
-export const getMediaInfo: APIGatewayProxyHandlerV2 = async (event, context) => {
+export const getMediaInfo: APIGatewayProxyHandlerV2 = async (
+  event,
+  context
+) => {
   log(event);
-
   try {
     /**
      * Create the manager object
@@ -57,7 +59,10 @@ export const getMediaInfo: APIGatewayProxyHandlerV2 = async (event, context) => 
     /**
      * Call the manager's method
      */
-    const result = await manager.getMediaInfo(mediaInfoUrl, mediaInfoCurlService);
+    const result = await manager.getMediaInfo(
+      mediaInfoUrl,
+      mediaInfoCurlService
+    );
 
     return createResponse(200, result);
   } catch (e) {

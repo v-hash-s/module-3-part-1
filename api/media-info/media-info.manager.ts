@@ -1,7 +1,7 @@
-import { MediaInfoCurlService, Track } from '@services/media-info-curl.service';
-import { HttpBadRequestError } from '@errors/http';
-import { MediaInfoUrl } from './media-info.inteface';
-import { MediaInfoService } from './media-info.service';
+import { MediaInfoCurlService, Track } from "@services/media-info-curl.service";
+import { HttpBadRequestError } from "@errors/http";
+import { MediaInfoUrl } from "./media-info.inteface";
+import { MediaInfoService } from "./media-info.service";
 
 /**
  * It's the feature manager
@@ -26,10 +26,14 @@ export class MediaInfoManager {
    * @param mediaInfoUrl - required data
    * @param mediaInfoCurlService - required services
    */
-  getMediaInfo(mediaInfoUrl: MediaInfoUrl, mediaInfoCurlService: MediaInfoCurlService): Promise<Track> {
+  getMediaInfo(
+    mediaInfoUrl: MediaInfoUrl,
+    mediaInfoCurlService: MediaInfoCurlService
+  ): Promise<Track> {
     /**
      * Validate required data -> Check if url exists
      */
+
     if (!mediaInfoUrl.url) {
       throw new HttpBadRequestError("The param 'url' is required.");
     }

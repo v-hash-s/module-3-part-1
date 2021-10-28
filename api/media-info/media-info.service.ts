@@ -1,5 +1,5 @@
-import { HttpBadRequestError, HttpInternalServerError } from '@errors/http';
-import { MediaInfoCurlService, Track } from '@services/media-info-curl.service';
+import { HttpBadRequestError, HttpInternalServerError } from "@errors/http";
+import { MediaInfoCurlService, Track } from "@services/media-info-curl.service";
 
 /**
  * It's the feature service
@@ -11,7 +11,10 @@ export class MediaInfoService {
    * @param url - required data
    * @param mediaInfoCurlService - required services
    */
-  async getMediaInfo(url: string, mediaInfoCurlService: MediaInfoCurlService): Promise<Track> {
+  async getMediaInfo(
+    url: string,
+    mediaInfoCurlService: MediaInfoCurlService
+  ): Promise<Track> {
     /**
      * Try to catch unexpected errors
      */
@@ -25,7 +28,9 @@ export class MediaInfoService {
      * If !mediaInfo it means that the URL is broken or doesn't have access
      */
     if (!mediaInfo) {
-      throw new HttpBadRequestError("Can't extract media info. Please, check your URL");
+      throw new HttpBadRequestError(
+        "Can't extract media info. Please, check your URL"
+      );
     }
     return mediaInfo;
   }

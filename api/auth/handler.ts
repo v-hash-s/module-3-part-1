@@ -17,7 +17,8 @@ export const authenticationJWT = async (event: any) => {
   try {
     let user = JWT.verify(token, getEnv("TOKEN_KEY"));
     return generatePolicy("user", "Allow", "*", {
-      user: user.email,
+      //@ts-ignore
+      user: event.email,
       body: event.body,
     });
   } catch (err) {

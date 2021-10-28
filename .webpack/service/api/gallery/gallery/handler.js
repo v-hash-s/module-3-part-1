@@ -9,14 +9,36 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./api/gallery/login/handler.ts":
-/*!**************************************!*\
-  !*** ./api/gallery/login/handler.ts ***!
-  \**************************************/
+/***/ "./api/gallery/gallery/gallery.manager.ts":
+/*!************************************************!*\
+  !*** ./api/gallery/gallery/gallery.manager.ts ***!
+  \************************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.loginPostRequestHandler = exports.loginGetRequestHandler = void 0;\nconst response_1 = __webpack_require__(/*! @helper/http-api/response */ \"./helper/http-api/response.ts\");\nconst error_handler_1 = __webpack_require__(/*! @helper/http-api/error-handler */ \"./helper/http-api/error-handler.ts\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nconst loginGetRequestHandler = async (event) => {\n    try {\n        return response_1.createResponse(200, { message: \"login GET request\" });\n    }\n    catch (e) {\n        return error_handler_1.errorHandler(e);\n    }\n};\nexports.loginGetRequestHandler = loginGetRequestHandler;\nconst loginPostRequestHandler = async (event) => {\n    try {\n        logger_1.log(event);\n        // const userCreds: UserCredentials = JSON.parse(event.body!);\n        // const manager = new LoginManager();\n        // const result = await manager.checkUserAndSignJWT(userCreds);\n        return response_1.createResponse(200, \"handler\");\n    }\n    catch (err) {\n        return error_handler_1.errorHandler(err);\n    }\n};\nexports.loginPostRequestHandler = loginPostRequestHandler;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/login/handler.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.GalleryManager = void 0;\nconst gallery_service_1 = __webpack_require__(/*! ./gallery.service */ \"./api/gallery/gallery/gallery.service.ts\");\nclass GalleryManager {\n    constructor() {\n        this.service = new gallery_service_1.GalleryService();\n        console.log(this.service);\n    }\n    async getGalleryPage(queryParams) {\n        return await this.service.getImages(queryParams);\n    }\n}\nexports.GalleryManager = GalleryManager;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/gallery/gallery.manager.ts?");
+
+/***/ }),
+
+/***/ "./api/gallery/gallery/gallery.service.ts":
+/*!************************************************!*\
+  !*** ./api/gallery/gallery/gallery.service.ts ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.GalleryService = void 0;\nconst image_model_1 = __webpack_require__(/*! @models/MongoDB/image.model */ \"./models/MongoDB/image.model.ts\");\nclass GalleryService {\n    async getImages(galleryQuery) {\n        console.log(JSON.stringify(image_model_1.default));\n    }\n}\nexports.GalleryService = GalleryService;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/gallery/gallery.service.ts?");
+
+/***/ }),
+
+/***/ "./api/gallery/gallery/handler.ts":
+/*!****************************************!*\
+  !*** ./api/gallery/gallery/handler.ts ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.getGalleryPage = void 0;\nconst gallery_manager_1 = __webpack_require__(/*! ./gallery.manager */ \"./api/gallery/gallery/gallery.manager.ts\");\nconst gallery_service_1 = __webpack_require__(/*! ./gallery.service */ \"./api/gallery/gallery/gallery.service.ts\");\nconst response_1 = __webpack_require__(/*! @helper/http-api/response */ \"./helper/http-api/response.ts\");\nconst error_handler_1 = __webpack_require__(/*! @helper/http-api/error-handler */ \"./helper/http-api/error-handler.ts\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nconst getGalleryPage = async (event) => {\n    logger_1.log(event);\n    let tab = event.requestContext.authorizer.claims.user; // ?????????????\n    try {\n        let QueryStringParams = event.queryStringParameters;\n        let galleryRequest = {\n            page: QueryStringParams.page,\n            limit: QueryStringParams.limit,\n            filter: QueryStringParams.filter === \"true\" ? true : false,\n            user: event.requestContext.authorizer.claims.user,\n        };\n        const manager = new gallery_manager_1.GalleryManager();\n        const service = new gallery_service_1.GalleryService();\n        const result = await manager.getGalleryPage(galleryRequest);\n        return response_1.createResponse(200, result);\n    }\n    catch (err) {\n        return error_handler_1.errorHandler(err);\n    }\n};\nexports.getGalleryPage = getGalleryPage;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/gallery/handler.ts?");
 
 /***/ }),
 
@@ -262,6 +284,17 @@ eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexpo
 
 /***/ }),
 
+/***/ "./models/MongoDB/image.model.ts":
+/*!***************************************!*\
+  !*** ./models/MongoDB/image.model.ts ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst mongoose = __webpack_require__(/*! mongoose */ \"mongoose\");\nconst Schema = mongoose.Schema;\nconst imageSchema = new Schema({\n    path: String,\n    metadata: Object,\n    owner: String,\n});\nconst ImageModel = mongoose.model(\"images\", imageSchema);\nexports.default = ImageModel;\n\n\n//# sourceURL=webpack://template-aws-sls/./models/MongoDB/image.model.ts?");
+
+/***/ }),
+
 /***/ "./source-map-install.js":
 /*!*******************************!*\
   !*** ./source-map-install.js ***!
@@ -280,6 +313,17 @@ eval("__webpack_require__(/*! source-map-support */ \"source-map-support\").inst
 
 "use strict";
 module.exports = require("@redtea/format-axios-error");
+
+/***/ }),
+
+/***/ "mongoose":
+/*!***************************!*\
+  !*** external "mongoose" ***!
+  \***************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("mongoose");
 
 /***/ }),
 
@@ -326,7 +370,7 @@ module.exports = require("source-map-support");
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module can't be inlined because the eval devtool is used.
 /******/ 	__webpack_require__("./source-map-install.js");
-/******/ 	var __webpack_exports__ = __webpack_require__("./api/gallery/login/handler.ts");
+/******/ 	var __webpack_exports__ = __webpack_require__("./api/gallery/gallery/handler.ts");
 /******/ 	var __webpack_export_target__ = exports;
 /******/ 	for(var i in __webpack_exports__) __webpack_export_target__[i] = __webpack_exports__[i];
 /******/ 	if(__webpack_exports__.__esModule) Object.defineProperty(__webpack_export_target__, "__esModule", { value: true });

@@ -1,12 +1,14 @@
-export interface SignUpErrorMessage {
+interface SignUpErrorMessage {
   errorMessage: string;
 }
 
-export interface SignUpMessage {
+interface SignUpMessage {
   message: string;
 }
 
-export interface SignUpResponse {
+interface SignUpResponse {
   statusCode: number;
   message: SignUpErrorMessage | SignUpMessage;
 }
+
+export { SignUpResponse, SignUpMessage, SignUpErrorMessage };

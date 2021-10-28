@@ -8,6 +8,7 @@ import {
   SignUpMessage,
   SignUpResponse,
 } from "./sign_up.interfaces";
+import * as bcrypt from "bcrypt";
 
 export class SignUpService {
   errorMessage: SignUpErrorMessage;
@@ -32,10 +33,7 @@ export class SignUpService {
     } else {
       await UsersModel.create({
         email: credentials.email,
-        passwordHash: crypto
-          .createHmac("sha256", getEnv("PASSWORD_ENC_KEY"))
-          .update(credentials.password)
-          .digest("hex"),
+        password: await hashPassword(credentials.password),
       });
 
       this.response.statusCode = 200;
@@ -43,4 +41,19 @@ export class SignUpService {
       return this.response;
     }
   }
+}
+
+async function hashPassword(password: string) {
+  console.log("Pasword in function: ", password);
+  const saltRounds = process.env.SALT_ROUNDS;
+  const salt = await getSalt(Number(saltRounds));
+  const hashedPassword = await bcrypt.hash(password, salt);
+  console.log("hashed password: ", hashedPassword);
+  return hashedPassword;
+}
+
+async function getSalt(saltRounds: number) {
+  const salt = await bcrypt.genSalt(saltRounds);
+  console.log("Salt: ", salt);
+  return salt;
 }

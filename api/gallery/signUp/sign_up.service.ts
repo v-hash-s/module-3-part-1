@@ -24,6 +24,7 @@ export class SignUpService {
   }
 
   async signUp(credentials: UserCredentials): Promise<SignUpResponse> {
+    console.log("CONNECTING TO DB");
     await connectDB;
     if (await UsersModel.exists({ email: credentials.email })) {
       this.response.statusCode = 300;

@@ -101,8 +101,8 @@ export const examplesConfig: AWSPartitial = {
       ],
     },
 
-    signUpResponse: {
-      handler: "api/gallery/sign_up/handler.signUpHandler",
+    signUp: {
+      handler: "api/gallery/signUp/handler.signUp",
       memorySize: 128,
       events: [
         {
@@ -125,19 +125,21 @@ export const examplesConfig: AWSPartitial = {
       memorySize: 128,
     },
 
-    galleryGetResponse: {
-      handler: "api/gallery/gallery/handler.getGalleryPage",
-      memorySize: 128,
-      events: [
-        {
-          http: {
-            path: "/gallery",
-            method: "get",
-            authorizer: "jwtauth",
-            cors: true,
-          },
-        },
-      ],
-    },
+    //   galleryGetResponse: {
+    //     handler: "api/gallery/gallery/handler.getGalleryPage",
+    //     memorySize: 128,
+    //     events: [
+    //       {
+    //         http: {
+    //           path: "/gallery",
+    //           method: "get",
+    //           authorizer: "jwtauth",
+    //           cors: true,
+    //         },
+    //       },
+    //     ],
+    //   },
+    // },
+    // },
   },
 };

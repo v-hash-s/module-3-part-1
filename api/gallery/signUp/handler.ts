@@ -7,7 +7,7 @@ import { errorHandler } from "@helper/http-api/error-handler";
 import { createResponse } from "@helper/http-api/response";
 import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 
-export const signUpHandler: APIGatewayProxyHandlerV2 = async (event) => {
+export const signUp: APIGatewayProxyHandlerV2 = async (event) => {
   log(event);
 
   try {

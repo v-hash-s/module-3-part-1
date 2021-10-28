@@ -1,11 +1,17 @@
 import { UserCredentials } from "@interfaces/user-credentials.interface";
 import UserModel from "@models/MongoDB/user.model";
-import { SignUpService } from "../signUp/sign_up.service";
-import * as bcrypt from bcrypt;
+import * as bcrypt from "bcrypt";
+import * as jwt from "jsonwebtoken";
+import { getEnv } from "@helper/environment";
 
-export class LoginService {
-  constructor() {}
-}
+// export class LoginService {
+
+// //   constructor() {}
+//     async function authorizeUser(){
+
+//     }
+
+// }
 
 async function isValidUser(user: UserCredentials) {
   const data = await UserModel.findOne(
@@ -25,4 +31,17 @@ async function isValidUser(user: UserCredentials) {
   console.log(data);
 
   return data;
+}
+
+async function sendToken(email: string) {
+  let token = await UserModel.findOne({ email: email }).then((user: any) => {
+    console.log("EMAIL FROM MONGO: ", user.email);
+    const userEmail = { email: user.email };
+    const accessToken = jwt.sign(userEmail, getEnv("TOKEN_KEY"), {
+      expiresIn: 600000,
+    });
+    return accessToken;
+  });
+  console.log("IN FUNCTION: ", token);
+  return token;
 }

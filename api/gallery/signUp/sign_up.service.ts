@@ -1,7 +1,6 @@
 import { UserCredentials } from "@interfaces/user-credentials.interface";
 import { connectDB } from "@services/db_connection";
 import UsersModel from "@models/MongoDB/user.model";
-import * as crypto from "crypto";
 import { getEnv } from "@helper/environment";
 import {
   SignUpErrorMessage,

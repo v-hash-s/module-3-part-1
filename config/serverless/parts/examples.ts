@@ -50,7 +50,6 @@ export const examplesConfig: AWSPartitial = {
           http: {
             path: "/signup",
             method: "post",
-            cors: true,
             response: {
               headers: {
                 "Access-Control-Allow-Credentials": "*",
@@ -76,6 +75,19 @@ export const examplesConfig: AWSPartitial = {
             method: "get",
             // authorizer: "authenticationJWT",
             cors: true,
+          },
+        },
+      ],
+    },
+
+    uploadPostResponse: {
+      handler: "api/gallery/upload/handler.uploadImage",
+      memorySize: 128,
+      events: [
+        {
+          http: {
+            path: "/upload",
+            method: "post",
           },
         },
       ],

@@ -22,11 +22,11 @@ export const loginPostRequestHandler: APIGatewayProxyHandlerV2 = async (
   event
 ) => {
   try {
-    log(event);
-    // const userCreds: UserCredentials = JSON.parse(event.body!);
-    // const manager = new LoginManager();
-    // const result = await manager.checkUserAndSignJWT(userCreds);
-    return createResponse(200, "handler");
+    log(JSON.parse(event.body!));
+    const user = JSON.parse(event.body!);
+    const manager = new LoginManager();
+    const result = await manager.sendResponseToUser(user);
+    return createResponse(result.statusCode, result.content);
   } catch (err) {
     return errorHandler(err);
   }

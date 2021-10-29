@@ -16,7 +16,29 @@
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.loginPostRequestHandler = exports.loginGetRequestHandler = void 0;\nconst response_1 = __webpack_require__(/*! @helper/http-api/response */ \"./helper/http-api/response.ts\");\nconst error_handler_1 = __webpack_require__(/*! @helper/http-api/error-handler */ \"./helper/http-api/error-handler.ts\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nconst loginGetRequestHandler = async (event) => {\n    try {\n        return response_1.createResponse(200, { message: \"login GET request\" });\n    }\n    catch (e) {\n        return error_handler_1.errorHandler(e);\n    }\n};\nexports.loginGetRequestHandler = loginGetRequestHandler;\nconst loginPostRequestHandler = async (event) => {\n    try {\n        logger_1.log(event);\n        // const userCreds: UserCredentials = JSON.parse(event.body!);\n        // const manager = new LoginManager();\n        // const result = await manager.checkUserAndSignJWT(userCreds);\n        return response_1.createResponse(200, \"handler\");\n    }\n    catch (err) {\n        return error_handler_1.errorHandler(err);\n    }\n};\nexports.loginPostRequestHandler = loginPostRequestHandler;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/login/handler.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.loginPostRequestHandler = exports.loginGetRequestHandler = void 0;\nconst response_1 = __webpack_require__(/*! @helper/http-api/response */ \"./helper/http-api/response.ts\");\nconst login_manager_1 = __webpack_require__(/*! ./login.manager */ \"./api/gallery/login/login.manager.ts\");\nconst error_handler_1 = __webpack_require__(/*! @helper/http-api/error-handler */ \"./helper/http-api/error-handler.ts\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nconst loginGetRequestHandler = async (event) => {\n    try {\n        return response_1.createResponse(200, { message: \"login GET request\" });\n    }\n    catch (e) {\n        return error_handler_1.errorHandler(e);\n    }\n};\nexports.loginGetRequestHandler = loginGetRequestHandler;\nconst loginPostRequestHandler = async (event) => {\n    try {\n        logger_1.log(JSON.parse(event.body));\n        const user = JSON.parse(event.body);\n        const manager = new login_manager_1.LoginManager();\n        const result = await manager.sendResponseToUser(user);\n        return response_1.createResponse(result.statusCode, result.content);\n    }\n    catch (err) {\n        return error_handler_1.errorHandler(err);\n    }\n};\nexports.loginPostRequestHandler = loginPostRequestHandler;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/login/handler.ts?");
+
+/***/ }),
+
+/***/ "./api/gallery/login/login.manager.ts":
+/*!********************************************!*\
+  !*** ./api/gallery/login/login.manager.ts ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.LoginManager = void 0;\nconst login_service_1 = __webpack_require__(/*! ./login.service */ \"./api/gallery/login/login.service.ts\");\nconst db_connection_1 = __webpack_require__(/*! @services/db_connection */ \"./services/db_connection.ts\");\nconst user_model_1 = __webpack_require__(/*! @models/MongoDB/user.model */ \"./models/MongoDB/user.model.ts\");\nconst bcrypt = __webpack_require__(/*! bcrypt */ \"bcrypt\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nclass LoginManager {\n    constructor() {\n        this.service = new login_service_1.LoginService();\n    }\n    async findUserInDB(user) {\n        await db_connection_1.connectDB;\n        const data = await user_model_1.default.findOne({ email: user.email }).then((data) => {\n            if (bcrypt.compareSync(user.password, data.password)) {\n                logger_1.log(\"USER PASSWORD: \", user.password);\n                logger_1.log(\"DB PASSWORD: \", data.password);\n                return true;\n            }\n            else\n                return false;\n        });\n        console.log(data);\n        return data;\n    }\n    async sendResponseToUser(user) {\n        let isInDB = await this.findUserInDB(user);\n        if (isInDB) {\n            return {\n                statusCode: 200,\n                content: { token: this.service.signJWTToken(user.email) },\n            };\n        }\n        else {\n            return {\n                statusCode: 404,\n                content: { errorMessage: \"User not found\" },\n            };\n        }\n    }\n}\nexports.LoginManager = LoginManager;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/login/login.manager.ts?");
+
+/***/ }),
+
+/***/ "./api/gallery/login/login.service.ts":
+/*!********************************************!*\
+  !*** ./api/gallery/login/login.service.ts ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.LoginService = void 0;\nconst environment_1 = __webpack_require__(/*! @helper/environment */ \"./helper/environment.ts\");\nconst jwt = __webpack_require__(/*! jsonwebtoken */ \"jsonwebtoken\");\nclass LoginService {\n    signJWTToken(userEmail) {\n        return jwt.sign({ email: userEmail }, environment_1.getEnv(\"TOKEN_KEY\"));\n    }\n}\nexports.LoginService = LoginService;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/login/login.service.ts?");
 
 /***/ }),
 
@@ -262,6 +284,28 @@ eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexpo
 
 /***/ }),
 
+/***/ "./models/MongoDB/user.model.ts":
+/*!**************************************!*\
+  !*** ./models/MongoDB/user.model.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst mongoose = __webpack_require__(/*! mongoose */ \"mongoose\");\nconst Schema = mongoose.Schema;\nconst userSchema = new Schema({\n    email: String,\n    password: String,\n});\nconst UserModel = mongoose.model(\"users\", userSchema);\nexports.default = UserModel;\n\n\n//# sourceURL=webpack://template-aws-sls/./models/MongoDB/user.model.ts?");
+
+/***/ }),
+
+/***/ "./services/db_connection.ts":
+/*!***********************************!*\
+  !*** ./services/db_connection.ts ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.connectDB = void 0;\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nconst mongoose = __webpack_require__(/*! mongoose */ \"mongoose\");\nconst environment_1 = __webpack_require__(/*! ../helper/environment */ \"./helper/environment.ts\");\nmongoose.connect(environment_1.getEnv(\"MONGODB_URI\"));\nexports.connectDB = new Promise((res, rej) => {\n    mongoose.connection.on(\"error\", (error) => {\n        logger_1.log(error);\n        rej(error);\n    });\n    mongoose.connection.on(\"open\", () => {\n        logger_1.log(\"DB connection established\");\n    });\n    res(mongoose.connection);\n});\n\n\n//# sourceURL=webpack://template-aws-sls/./services/db_connection.ts?");
+
+/***/ }),
+
 /***/ "./source-map-install.js":
 /*!*******************************!*\
   !*** ./source-map-install.js ***!
@@ -280,6 +324,39 @@ eval("__webpack_require__(/*! source-map-support */ \"source-map-support\").inst
 
 "use strict";
 module.exports = require("@redtea/format-axios-error");
+
+/***/ }),
+
+/***/ "bcrypt":
+/*!*************************!*\
+  !*** external "bcrypt" ***!
+  \*************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("bcrypt");
+
+/***/ }),
+
+/***/ "jsonwebtoken":
+/*!*******************************!*\
+  !*** external "jsonwebtoken" ***!
+  \*******************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("jsonwebtoken");
+
+/***/ }),
+
+/***/ "mongoose":
+/*!***************************!*\
+  !*** external "mongoose" ***!
+  \***************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("mongoose");
 
 /***/ }),
 

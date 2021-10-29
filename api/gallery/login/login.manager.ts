@@ -4,24 +4,41 @@ import { UserCredentials } from "@interfaces/user-credentials.interface";
 import { connectDB } from "@services/db_connection";
 import UsersModel from "@models/MongoDB/user.model";
 import * as bcrypt from "bcrypt";
-
+import { log } from "@helper/logger";
+import { getEnv } from "@helper/environment";
 export class LoginManager {
   private readonly service: LoginService;
   constructor() {
     this.service = new LoginService();
   }
+  async findUserInDB(user: UserCredentials) {
+    await connectDB;
 
-  async checkUserAndSignJWT(user: UserCredentials) {
-    return { message: "checkUserAndSignJWT" };
+    const data = await UsersModel.findOne({ email: user.email }).then(
+      (data) => {
+        if (bcrypt.compareSync(user.password, data.password)) {
+          log("USER PASSWORD: ", user.password);
+          log("DB PASSWORD: ", data.password);
+          return true;
+        } else return false;
+      }
+    );
+    console.log(data);
+    return data;
+  }
 
-    //   await connectDB;
-    //   let usersPassword = user.password;
-    //   let userDB = await UsersModel.findOne({ email: user.email });
-    //   console.log(`userDB: ${userDB}`);
-    //   if (bcrypt.compareSync(usersPassword, userDB.password)) {
-    //     return this.service.signJWTToken(user.email);
-    //   } else {
-    //     throw new HttpBadRequestError("User not found");
-    //   }
+  async sendResponseToUser(user) {
+    let isInDB = await this.findUserInDB(user);
+    if (isInDB) {
+      return {
+        statusCode: 200,
+        content: { token: this.service.signJWTToken(user.email) },
+      };
+    } else {
+      return {
+        statusCode: 404,
+        content: { errorMessage: "User not found" },
+      };
+    }
   }
 }

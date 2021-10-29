@@ -74,7 +74,7 @@ export const examplesConfig: AWSPartitial = {
           http: {
             path: "/gallery",
             method: "get",
-            authorizer: "jwtauth",
+            // authorizer: "authenticationJWT",
             cors: true,
           },
         },

@@ -4,26 +4,13 @@ import { GalleryRequestParams } from "./gallery.interfaces";
 import { createResponse } from "@helper/http-api/response";
 import { errorHandler } from "@helper/http-api/error-handler";
 import { log } from "@helper/logger";
+import ImageModel from "@models/MongoDB/image.model";
+import { connectDB } from "@services/db_connection";
 
 export const getGalleryPage = async (event) => {
-  log(event);
-  let tab = event.requestContext.authorizer.claims.user; // ?????????????
-  try {
-    let QueryStringParams = event.queryStringParameters;
-
-    let galleryRequest: GalleryRequestParams = {
-      page: QueryStringParams.page,
-      limit: QueryStringParams.limit,
-      filter: QueryStringParams.filter === "true" ? true : false,
-      user: event.requestContext.authorizer.claims.user,
-    };
-
-    const manager = new GalleryManager();
-    const service = new GalleryService();
-    const result = await manager.getGalleryPage(galleryRequest);
-
-    return createResponse(200, result);
-  } catch (err) {
-    return errorHandler(err);
-  }
+  await connectDB;
+  const queryParameters = event.queryStringParameters;
+  log(queryParameters);
+  const service = new GalleryService();
+  service.sendGalleryObject(queryParameters);
 };

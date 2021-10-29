@@ -3,7 +3,7 @@ import {
   APIGatewayAuthorizerResult,
   APIGatewayTokenAuthorizerWithContextHandler,
 } from "aws-lambda";
-import * as JWT from "jsonwebtoken";
+import * as jwt from "jsonwebtoken";
 // import UsersModel from "@models/MongoDB/user.model";
 // import { Response } from "@helper/http-api/response";
 import { getEnv } from "@helper/environment";
@@ -15,7 +15,7 @@ export const authenticationJWT = async (event: any) => {
 
   const token = event.authorizationToken.split(" ")[1];
   try {
-    let user = JWT.verify(token, getEnv("TOKEN_KEY"));
+    let user = jwt.verify(token, getEnv("TOKEN_KEY"));
     return generatePolicy("user", "Allow", "*", {
       //@ts-ignore
       user: event.email,

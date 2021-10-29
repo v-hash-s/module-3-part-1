@@ -6,11 +6,17 @@ import { errorHandler } from "@helper/http-api/error-handler";
 import { log } from "@helper/logger";
 import ImageModel from "@models/MongoDB/image.model";
 import { connectDB } from "@services/db_connection";
+import { AuditManager } from "aws-sdk";
 
 export const getGalleryPage = async (event) => {
   await connectDB;
   const queryParameters = event.queryStringParameters;
-  log(queryParameters);
-  const service = new GalleryService();
-  service.sendGalleryObject(queryParameters);
+  const token = event.multiValueHeaders.Authorization.toString().replace(
+    "Bearer ",
+    ""
+  );
+  log(token);
+  const manager = new GalleryManager();
+  const email = await manager.getEmailFromToken(token);
+  manager.sendUsersImage(queryParameters, email);
 };

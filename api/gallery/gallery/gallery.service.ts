@@ -43,8 +43,6 @@ export class GalleryService {
     const photos: string[] = [];
     limit = Number(limit);
     pageNumber = Number(pageNumber);
-    log("CALC: ", limit + (pageNumber - 1) * limit);
-    log("limit: ", limit);
 
     for (
       let i = (pageNumber - 1) * limit;
@@ -60,7 +58,6 @@ export class GalleryService {
 
   async getValue() {
     const arr = await ImageModel.find({}, { path: 1, _id: 0 }).exec();
-    // log(arr);
     return arr;
   }
 }

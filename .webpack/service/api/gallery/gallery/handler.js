@@ -9,6 +9,17 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./api/gallery/gallery/gallery.manager.ts":
+/*!************************************************!*\
+  !*** ./api/gallery/gallery/gallery.manager.ts ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.GalleryManager = void 0;\nconst gallery_service_1 = __webpack_require__(/*! ./gallery.service */ \"./api/gallery/gallery/gallery.service.ts\");\nconst image_model_1 = __webpack_require__(/*! @models/MongoDB/image.model */ \"./models/MongoDB/image.model.ts\");\nconst environment_1 = __webpack_require__(/*! @helper/environment */ \"./helper/environment.ts\");\nconst jwt = __webpack_require__(/*! jsonwebtoken */ \"jsonwebtoken\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nclass GalleryManager {\n    constructor() {\n        this.service = new gallery_service_1.GalleryService();\n        // this.limit = queryParameters.limit\n    }\n    async sendUsersImage(queryParameters, email) {\n        let filter;\n        if (queryParameters.filter == null) {\n            filter = false;\n            return this.service.sendGalleryObject(queryParameters);\n        }\n        else {\n            logger_1.log(\"EMAIL: \", email);\n            const objects = await image_model_1.default.find({ owner: await email }, { path: 1, _id: 0 }).exec();\n            logger_1.log(objects);\n            const images = objects.map((img) => {\n                return img.path;\n            });\n            logger_1.log(images);\n            const galleryResponse = {\n                objects: images,\n            };\n            logger_1.log(galleryResponse);\n            return galleryResponse;\n        }\n    }\n    async getEmailFromToken(token) {\n        const email = jwt.verify(token, environment_1.getEnv(\"TOKEN_KEY\"));\n        // @ts-ignore\n        return email.email;\n    }\n}\nexports.GalleryManager = GalleryManager;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/gallery/gallery.manager.ts?");
+
+/***/ }),
+
 /***/ "./api/gallery/gallery/gallery.service.ts":
 /*!************************************************!*\
   !*** ./api/gallery/gallery/gallery.service.ts ***!
@@ -16,7 +27,7 @@
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.GalleryService = void 0;\nconst image_model_1 = __webpack_require__(/*! @models/MongoDB/image.model */ \"./models/MongoDB/image.model.ts\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nclass GalleryService {\n    async sendGalleryObject(queryParameters) {\n        console.log(\"QUERY: \", queryParameters);\n        const galleryResponse = {\n            objects: await this.getPhotosArray(queryParameters.page, queryParameters.limit),\n            total: await this.getPagesNumber(queryParameters),\n        };\n        logger_1.log(\"GALLERY Response: \", galleryResponse);\n        return galleryResponse;\n    }\n    async getPagesNumber(queryParameters) {\n        let limit = Number(queryParameters.limit);\n        // if (limit == null) {\n        //   limit = 10;\n        // }\n        const counts = await image_model_1.default.count();\n        const finalResult = Math.ceil(counts / limit);\n        return finalResult;\n    }\n    async getTotal(queryParameters) {\n        const total = await this.getPagesNumber(queryParameters);\n        return total;\n    }\n    async getPhotosArray(pageNumber, limit) {\n        logger_1.log(\"Page num: \", pageNumber);\n        logger_1.log(\"limit: \", limit);\n        const arr = await this.getValue();\n        // log(\"ARR: \", arr);\n        const photos = [];\n        limit = Number(limit);\n        pageNumber = Number(pageNumber);\n        logger_1.log(\"CALC: \", limit + (pageNumber - 1) * limit);\n        logger_1.log(\"limit: \", limit);\n        for (let i = (pageNumber - 1) * limit; i < limit + (pageNumber - 1) * limit && i < arr.length; i++) {\n            photos.push(arr[i].path);\n            logger_1.log(arr[i] + \" : \" + i);\n        }\n        return photos;\n    }\n    async getValue() {\n        const arr = await image_model_1.default.find({}, { path: 1, _id: 0 }).exec();\n        // log(arr);\n        return arr;\n    }\n}\nexports.GalleryService = GalleryService;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/gallery/gallery.service.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.GalleryService = void 0;\nconst image_model_1 = __webpack_require__(/*! @models/MongoDB/image.model */ \"./models/MongoDB/image.model.ts\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nclass GalleryService {\n    async sendGalleryObject(queryParameters) {\n        console.log(\"QUERY: \", queryParameters);\n        const galleryResponse = {\n            objects: await this.getPhotosArray(queryParameters.page, queryParameters.limit),\n            total: await this.getPagesNumber(queryParameters),\n        };\n        logger_1.log(\"GALLERY Response: \", galleryResponse);\n        return galleryResponse;\n    }\n    async getPagesNumber(queryParameters) {\n        let limit = Number(queryParameters.limit);\n        // if (limit == null) {\n        //   limit = 10;\n        // }\n        const counts = await image_model_1.default.count();\n        const finalResult = Math.ceil(counts / limit);\n        return finalResult;\n    }\n    async getTotal(queryParameters) {\n        const total = await this.getPagesNumber(queryParameters);\n        return total;\n    }\n    async getPhotosArray(pageNumber, limit) {\n        logger_1.log(\"Page num: \", pageNumber);\n        logger_1.log(\"limit: \", limit);\n        const arr = await this.getValue();\n        const photos = [];\n        limit = Number(limit);\n        pageNumber = Number(pageNumber);\n        for (let i = (pageNumber - 1) * limit; i < limit + (pageNumber - 1) * limit && i < arr.length; i++) {\n            photos.push(arr[i].path);\n            logger_1.log(arr[i] + \" : \" + i);\n        }\n        return photos;\n    }\n    async getValue() {\n        const arr = await image_model_1.default.find({}, { path: 1, _id: 0 }).exec();\n        return arr;\n    }\n}\nexports.GalleryService = GalleryService;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/gallery/gallery.service.ts?");
 
 /***/ }),
 
@@ -27,7 +38,7 @@ eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexpo
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.getGalleryPage = void 0;\nconst gallery_service_1 = __webpack_require__(/*! ./gallery.service */ \"./api/gallery/gallery/gallery.service.ts\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nconst db_connection_1 = __webpack_require__(/*! @services/db_connection */ \"./services/db_connection.ts\");\nconst getGalleryPage = async (event) => {\n    await db_connection_1.connectDB;\n    const queryParameters = event.queryStringParameters;\n    logger_1.log(queryParameters);\n    const service = new gallery_service_1.GalleryService();\n    service.sendGalleryObject(queryParameters);\n};\nexports.getGalleryPage = getGalleryPage;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/gallery/handler.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.getGalleryPage = void 0;\nconst gallery_manager_1 = __webpack_require__(/*! ./gallery.manager */ \"./api/gallery/gallery/gallery.manager.ts\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nconst db_connection_1 = __webpack_require__(/*! @services/db_connection */ \"./services/db_connection.ts\");\nconst getGalleryPage = async (event) => {\n    await db_connection_1.connectDB;\n    const queryParameters = event.queryStringParameters;\n    let token = event.multiValueHeaders.Authorization.toString().replace(\"Bearer \", \"\"); // FIX\n    // token = token.replace(\"Bearer \", \"\");\n    logger_1.log(token);\n    const manager = new gallery_manager_1.GalleryManager();\n    const email = await manager.getEmailFromToken(token);\n    manager.sendUsersImage(queryParameters, email);\n};\nexports.getGalleryPage = getGalleryPage;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/gallery/handler.ts?");
 
 /***/ }),
 
@@ -104,6 +115,17 @@ eval("__webpack_require__(/*! source-map-support */ \"source-map-support\").inst
 
 "use strict";
 module.exports = require("@redtea/format-axios-error");
+
+/***/ }),
+
+/***/ "jsonwebtoken":
+/*!*******************************!*\
+  !*** external "jsonwebtoken" ***!
+  \*******************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("jsonwebtoken");
 
 /***/ }),
 

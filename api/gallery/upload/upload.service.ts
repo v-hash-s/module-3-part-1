@@ -6,7 +6,9 @@ import * as util from "util";
 const stat = util.promisify(fs.stat);
 
 export class UploadService {
-  private readonly FOLDER_PATH: string = "../../../../images";
+  private readonly FOLDER_PATH: string = path.resolve(
+    path.join(__dirname, "../../../../../images")
+  );
   async saveImageInDB(uploadedImage, stats, user) {
     const image = new ImageModel({
       path: uploadedImage,
@@ -18,8 +20,9 @@ export class UploadService {
 
   async saveImageLocally(uploadedImage) {
     fs.writeFile(
-      path.join(__dirname, `${this.FOLDER_PATH}/${uploadedImage}`),
+      path.join(this.FOLDER_PATH, uploadedImage),
       uploadedImage,
+      { encoding: null },
       (err: any) => {
         if (err) console.error(err);
       }

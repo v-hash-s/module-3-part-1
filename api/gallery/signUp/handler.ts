@@ -12,10 +12,9 @@ export const signUp: APIGatewayProxyHandlerV2 = async (event) => {
   log(event);
 
   try {
-    const credentials: UserCredentials = JSON.parse(event.body!);
+    const user: UserCredentials = JSON.parse(event.body!);
     const manager = new SignUpManager();
-    const service = new SignUpService();
-    const result: SignUpResponse = await manager.signUp(credentials, service);
+    const result = await manager.signUp(user);
 
     return createResponse(result.statusCode, result.message);
   } catch (error) {

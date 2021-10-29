@@ -1,6 +1,6 @@
 import { UserCredentials } from "@interfaces/user-credentials.interface";
 import { connectDB } from "@services/db_connection";
-import UsersModel from "@models/MongoDB/user.model";
+import UserModel from "@models/MongoDB/user.model";
 import { getEnv } from "@helper/environment";
 import {
   SignUpErrorMessage,
@@ -10,50 +10,28 @@ import {
 import * as bcrypt from "bcrypt";
 
 export class SignUpService {
-  errorMessage: SignUpErrorMessage;
-  message: SignUpMessage;
-  response: SignUpResponse;
-
-  constructor() {
-    this.errorMessage = { errorMessage: "User already exists" };
-    this.message = { message: "Signed up" };
-    this.response = {
-      statusCode: 200,
-      message: this.message,
-    };
-  }
-
-  async signUp(credentials: UserCredentials): Promise<SignUpResponse> {
-    console.log("CONNECTING TO DB");
+  async createUser(user) {
     await connectDB;
-    if (await UsersModel.exists({ email: credentials.email })) {
-      this.response.statusCode = 300;
-      this.response.message = this.errorMessage;
-      return this.response;
-    } else {
-      await UsersModel.create({
-        email: credentials.email,
-        password: await hashPassword(credentials.password),
-      });
+    const newUser = new UserModel({
+      email: user.email,
+      password: await this.hashPassword(user.password),
+    });
 
-      this.response.statusCode = 200;
-      this.response.message = this.message;
-      return this.response;
-    }
+    await newUser.save().then((result) => console.log(result));
   }
-}
 
-async function hashPassword(password: string) {
-  console.log("Pasword in function: ", password);
-  const saltRounds = process.env.SALT_ROUNDS;
-  const salt = await getSalt(Number(saltRounds));
-  const hashedPassword = await bcrypt.hash(password, salt);
-  console.log("hashed password: ", hashedPassword);
-  return hashedPassword;
-}
+  async hashPassword(password: string) {
+    console.log("Pasword in function: ", password);
+    const saltRounds = getEnv("SALT_ROUNDS");
+    const salt = await this.getSalt(Number(saltRounds));
+    const hashedPassword = await bcrypt.hash(password, salt);
+    console.log("hashed password: ", hashedPassword);
+    return hashedPassword;
+  }
 
-async function getSalt(saltRounds: number) {
-  const salt = await bcrypt.genSalt(saltRounds);
-  console.log("Salt: ", salt);
-  return salt;
+  async getSalt(saltRounds: number) {
+    const salt = await bcrypt.genSalt(saltRounds);
+    console.log("Salt: ", salt);
+    return salt;
+  }
 }

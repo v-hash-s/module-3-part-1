@@ -18,10 +18,10 @@ export class UploadService {
     await image.save().then((result: any) => console.log(result));
   }
 
-  async saveImageLocally(uploadedImage) {
+  async saveImageLocally(uploadedImage, uploadedContent) {
     fs.writeFile(
       path.join(this.FOLDER_PATH, uploadedImage),
-      uploadedImage,
+      uploadedContent,
       { encoding: null },
       (err: any) => {
         if (err) console.error(err);

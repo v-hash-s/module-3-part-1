@@ -8,8 +8,9 @@ import * as path from "path";
 export const uploadImage = async (event) => {
   const payload = await multipartParser.parse(event);
   //   log(payload);
+  const content = payload.files[0].content;
   const filename = payload.files[0].filename;
-  log(filename);
+  log(content);
   //   log(event);
   log(path.resolve(path.join(__dirname, "../../../../../images")));
   const manager = new UploadManager();
@@ -22,6 +23,6 @@ export const uploadImage = async (event) => {
   //   const email = await manager.getEmailFromToken(token);
   //   log("STATS: ", stats);
   //   log("EMAIL: ", email);
-  await service.saveImageLocally(filename);
+  await service.saveImageLocally(filename, content);
   //   await service.saveImageInDB(filename, stats, email);
 };

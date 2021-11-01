@@ -18,6 +18,13 @@ export const uploadImage = async (event) => {
   );
   const manager = new UploadManager();
   const service = new UploadService();
+  if (await manager.isExist(filename)) {
+    const response = {
+      statusCode: 309,
+      content: "Image already exists",
+    };
+    return createResponse(response.statusCode, response.content);
+  }
   await service.saveImageLocally(filename, content);
   const stats = await manager.getMetadata(path.join(pathToImages, filename));
   log(stats);

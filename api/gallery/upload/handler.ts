@@ -12,17 +12,20 @@ export const uploadImage = async (event) => {
   const filename = payload.files[0].filename;
   log(content);
   //   log(event);
-  log(path.resolve(path.join(__dirname, "../../../../../images")));
+  const pathToImages = path.resolve(
+    path.join(__dirname, "../../../../../images")
+  );
   const manager = new UploadManager();
   const service = new UploadService();
-  //   const stats = await manager.getMetadata(filename);
-  //   const token = await event.multiValueHeaders.Authorization.toString().replace(
-  //     "Bearer ",
-  //     ""
-  //   );
-  //   const email = await manager.getEmailFromToken(token);
-  //   log("STATS: ", stats);
-  //   log("EMAIL: ", email);
   await service.saveImageLocally(filename, content);
-  //   await service.saveImageInDB(filename, stats, email);
+  const stats = await manager.getMetadata(path.join(pathToImages, filename));
+  log(stats);
+  const token = await event.multiValueHeaders.Authorization.toString().replace(
+    "Bearer ",
+    ""
+  );
+  const email = await manager.getEmailFromToken(token);
+  log("STATS: ", stats);
+  log("EMAIL: ", email);
+  await service.saveImageInDB(filename, stats, email);
 };

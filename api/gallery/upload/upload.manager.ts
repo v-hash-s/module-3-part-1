@@ -4,7 +4,9 @@ import ImageModel from "@models/MongoDB/image.model";
 import * as fs from "fs";
 import * as jwt from "jsonwebtoken";
 import { getEnv } from "@helper/environment";
-
+import { log } from "@helper/logger";
+import * as util from "util";
+const stat = util.promisify(fs.stat);
 export class UploadManager {
   private readonly service: UploadService;
 
@@ -26,7 +28,9 @@ export class UploadManager {
     return exist;
   }
   async getMetadata(image) {
-    const stats = fs.statSync(image);
+    log(image);
+    const stats = await stat(image);
+    log(stats);
     return stats;
   }
 

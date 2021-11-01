@@ -39,4 +39,17 @@ export class UploadManager {
     // @ts-ignore
     return email.email;
   }
+
+  async returnResponse(isImageUploaded) {
+    if (isImageUploaded) {
+      return {
+        content: "Image is successfully uploaded",
+        statusCode: 200,
+      };
+    }
+    return {
+      content: "Error occured",
+      statusCode: 500,
+    };
+  }
 }

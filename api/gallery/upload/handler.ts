@@ -4,6 +4,7 @@ import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 import { UploadService } from "./upload.service";
 import { UploadManager } from "./upload.manager";
 import * as path from "path";
+import { createResponse } from "@helper/http-api/response";
 
 export const uploadImage = async (event) => {
   const payload = await multipartParser.parse(event);
@@ -28,4 +29,6 @@ export const uploadImage = async (event) => {
   log("STATS: ", stats);
   log("EMAIL: ", email);
   await service.saveImageInDB(filename, stats, email);
+  const result = await manager.returnResponse(manager.isExist(filename));
+  return createResponse(result.statusCode, result.content);
 };

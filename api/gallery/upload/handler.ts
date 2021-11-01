@@ -5,11 +5,6 @@ import { UploadService } from "./upload.service";
 import { UploadManager } from "./upload.manager";
 import * as path from "path";
 
-import { promisify } from "util";
-import * as childProcess from "child_process";
-
-const execFileP = promisify(childProcess.execFile);
-
 export const uploadImage = async (event) => {
   const payload = await multipartParser.parse(event);
   //   log(payload);

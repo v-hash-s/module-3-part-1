@@ -9,14 +9,20 @@ import { connectDB } from "@services/db_connection";
 import { AuditManager } from "aws-sdk";
 
 export const getGalleryPage = async (event) => {
-  await connectDB;
-  const queryParameters = event.queryStringParameters;
-  const token = event.multiValueHeaders.Authorization.toString().replace(
-    "Bearer ",
-    ""
-  );
-  log(token);
-  const manager = new GalleryManager();
-  const email = await manager.getEmailFromToken(token);
-  manager.sendUsersImage(queryParameters, email);
+  try {
+    await connectDB;
+    const queryParameters = event.queryStringParameters;
+    const token = event.multiValueHeaders.Authorization.toString().replace(
+      "Bearer ",
+      ""
+    );
+    log(token);
+    const manager = new GalleryManager();
+    const email = await manager.getEmailFromToken(token);
+    const result = await manager.sendUsersImage(queryParameters, email);
+    log(result);
+    return createResponse(result.statusCode, result.content);
+  } catch (err) {
+    return errorHandler(err);
+  }
 };

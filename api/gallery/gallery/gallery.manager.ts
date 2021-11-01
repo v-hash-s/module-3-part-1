@@ -4,6 +4,7 @@ import ImageModel from "@models/MongoDB/image.model";
 import { getEnv } from "@helper/environment";
 import * as jwt from "jsonwebtoken";
 import { log } from "@helper/logger";
+
 export class GalleryManager {
   private readonly service: GalleryService;
 
@@ -16,7 +17,10 @@ export class GalleryManager {
     let filter;
     if (queryParameters.filter == null) {
       filter = false;
-      return this.service.sendGalleryObject(queryParameters);
+      const galleryResponse = await this.service.sendGalleryObject(
+        queryParameters
+      );
+      return this.returnGalleryResponse(galleryResponse);
     } else {
       log("EMAIL: ", email);
       const objects = await ImageModel.find(
@@ -33,13 +37,26 @@ export class GalleryManager {
         objects: images,
       };
       log(galleryResponse);
-      return galleryResponse;
+      return this.returnGalleryResponse(galleryResponse);
     }
   }
-
   async getEmailFromToken(token: string) {
     const email = jwt.verify(token, getEnv("TOKEN_KEY"));
     // @ts-ignore
     return email.email;
+  }
+
+  async returnGalleryResponse(galleryResponse) {
+    if (galleryResponse) {
+      return {
+        statusCode: 200,
+        content: galleryResponse,
+      };
+    } else {
+      return {
+        statusCode: 404,
+        content: { errorMessage: "Images not found" },
+      };
+    }
   }
 }

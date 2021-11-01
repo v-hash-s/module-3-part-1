@@ -1,4 +1,3 @@
-import { GalleryRequestParams } from "./gallery.interfaces";
 import { GalleryService } from "./gallery.service";
 import ImageModel from "@models/MongoDB/image.model";
 import { getEnv } from "@helper/environment";
@@ -10,7 +9,6 @@ export class GalleryManager {
 
   constructor() {
     this.service = new GalleryService();
-    // this.limit = queryParameters.limit
   }
 
   async sendUsersImage(queryParameters, email) {

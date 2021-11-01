@@ -4,11 +4,7 @@ import {
   APIGatewayTokenAuthorizerWithContextHandler,
 } from "aws-lambda";
 import * as jwt from "jsonwebtoken";
-// import UsersModel from "@models/MongoDB/user.model";
-// import { Response } from "@helper/http-api/response";
 import { getEnv } from "@helper/environment";
-
-// const UNAUTHORIZED = new Error("Unauthorized");
 
 export const authenticationJWT = async (event: any) => {
   log(event);

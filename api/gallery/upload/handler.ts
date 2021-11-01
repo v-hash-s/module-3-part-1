@@ -8,11 +8,8 @@ import { createResponse } from "@helper/http-api/response";
 
 export const uploadImage = async (event) => {
   const payload = await multipartParser.parse(event);
-  //   log(payload);
   const content = payload.files[0].content;
   const filename = payload.files[0].filename;
-  log(content);
-  //   log(event);
   const pathToImages = path.resolve(
     path.join(__dirname, "../../../../../images")
   );
@@ -27,14 +24,11 @@ export const uploadImage = async (event) => {
   }
   await service.saveImageLocally(filename, content);
   const stats = await manager.getMetadata(path.join(pathToImages, filename));
-  log(stats);
   const token = await event.multiValueHeaders.Authorization.toString().replace(
     "Bearer ",
     ""
   );
   const email = await manager.getEmailFromToken(token);
-  log("STATS: ", stats);
-  log("EMAIL: ", email);
   await service.saveImageInDB(filename, stats, email);
   const result = await manager.returnResponse(manager.isExist(filename));
   return createResponse(result.statusCode, result.content);

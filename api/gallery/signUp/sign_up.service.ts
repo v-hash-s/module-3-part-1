@@ -1,12 +1,7 @@
-import { UserCredentials } from "@interfaces/user-credentials.interface";
 import { connectDB } from "@services/db_connection";
 import UserModel from "@models/MongoDB/user.model";
 import { getEnv } from "@helper/environment";
-import {
-  SignUpErrorMessage,
-  SignUpMessage,
-  SignUpResponse,
-} from "./sign_up.interfaces";
+
 import * as bcrypt from "bcrypt";
 
 export class SignUpService {

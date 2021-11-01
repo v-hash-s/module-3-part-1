@@ -3,7 +3,6 @@ import ImageModel from "@models/MongoDB/image.model";
 import * as fs from "fs";
 import * as path from "path";
 import * as util from "util";
-const stat = util.promisify(fs.stat);
 
 export class UploadService {
   private readonly FOLDER_PATH: string = path.resolve(

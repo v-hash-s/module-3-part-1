@@ -1,5 +1,4 @@
 import { connectDB } from "@services/db_connection";
-import { GalleryRequestParams, GalleryResponse } from "./gallery.interfaces";
 import ImageModel from "@models/MongoDB/image.model";
 import { log } from "@helper/logger";
 
@@ -22,9 +21,6 @@ export class GalleryService {
 
   async getPagesNumber(queryParameters) {
     let limit = Number(queryParameters.limit);
-    // if (limit == null) {
-    //   limit = 10;
-    // }
     const counts = await ImageModel.count();
     const finalResult = Math.ceil(counts / limit);
 

@@ -1,7 +1,5 @@
 import { SignUpService } from "./sign_up.service";
-import { UserCredentials } from "@interfaces/user-credentials.interface";
 import { HttpBadRequestError } from "@errors/http";
-import { SignUpResponse } from "./sign_up.interfaces";
 import { connectDB } from "@services/db_connection";
 import UserModel from "@models/MongoDB/user.model";
 import * as bcrypt from "bcrypt";
@@ -29,7 +27,7 @@ export class SignUpManager {
     }
   }
 
-  async isUserInDB(user: UserCredentials) {
+  async isUserInDB(user) {
     await connectDB;
 
     const data = await UserModel.findOne({ email: user.email }).then((data) => {

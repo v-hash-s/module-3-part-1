@@ -2,8 +2,6 @@ import { createResponse } from "@helper/http-api/response";
 import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 import { LoginManager } from "./login.manager";
 import { LoginService } from "./login.service";
-import { AuthenticationFailure, UserJWTToken } from "./login.interfaces";
-import { UserCredentials } from "@interfaces/user-credentials.interface";
 import { errorHandler } from "@helper/http-api/error-handler";
 import { HttpBadRequestError } from "@errors/http";
 import { log } from "@helper/logger";

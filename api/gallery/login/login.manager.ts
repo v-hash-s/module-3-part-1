@@ -1,6 +1,5 @@
 import { HttpBadRequestError } from "@errors/http";
 import { LoginService } from "./login.service";
-import { UserCredentials } from "@interfaces/user-credentials.interface";
 import { connectDB } from "@services/db_connection";
 import UserModel from "@models/MongoDB/user.model";
 import * as bcrypt from "bcrypt";
@@ -10,7 +9,7 @@ export class LoginManager {
   constructor() {
     this.service = new LoginService();
   }
-  async findUserInDB(user: UserCredentials) {
+  async findUserInDB(user) {
     await connectDB;
 
     const data = await UserModel.findOne({ email: user.email }).then((data) => {

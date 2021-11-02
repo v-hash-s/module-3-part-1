@@ -3,6 +3,7 @@ import { createResponse } from "@helper/http-api/response";
 import { errorHandler } from "@helper/http-api/error-handler";
 import { log } from "@helper/logger";
 import { connectDB } from "@services/db_connection";
+import * as multipartParser from "lambda-multipart-parser";
 
 export const getGallery = async (event) => {
   try {
@@ -21,4 +22,22 @@ export const getGallery = async (event) => {
   } catch (err) {
     return errorHandler(err);
   }
+};
+
+export const upload = async (event) => {
+  const payload = await multipartParser.parse(event);
+  const token = await event.multiValueHeaders.Authorization.toString().replace(
+    "Bearer ",
+    ""
+  );
+  const manager = new GalleryManager(payload, token);
+  if (await manager.isExist(payload.files[0].filename)) {
+    const response = {
+      statusCode: 309,
+      content: "Image already exists",
+    };
+    return createResponse(response.statusCode, response.content);
+  }
+  const result = await manager.saveImages();
+  return createResponse(result.statusCode, result.content);
 };

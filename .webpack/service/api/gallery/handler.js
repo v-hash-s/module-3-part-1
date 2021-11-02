@@ -16,7 +16,7 @@
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.GalleryManager = void 0;\nconst gallery_service_1 = __webpack_require__(/*! ./gallery.service */ \"./api/gallery/gallery.service.ts\");\nconst image_model_1 = __webpack_require__(/*! @models/MongoDB/image.model */ \"./models/MongoDB/image.model.ts\");\nconst environment_1 = __webpack_require__(/*! @helper/environment */ \"./helper/environment.ts\");\nconst jwt = __webpack_require__(/*! jsonwebtoken */ \"jsonwebtoken\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nclass GalleryManager {\n    constructor() {\n        this.service = new gallery_service_1.GalleryService();\n    }\n    async sendUsersImage(queryParameters, email) {\n        let filter;\n        if (queryParameters.filter == null) {\n            filter = false;\n            const galleryResponse = await this.service.sendGalleryObject(queryParameters);\n            return this.returnGalleryResponse(galleryResponse);\n        }\n        else {\n            logger_1.log(\"EMAIL: \", email);\n            const objects = await image_model_1.default.find({ owner: await email }, { path: 1, _id: 0 }).exec();\n            logger_1.log(objects);\n            const images = objects.map((img) => {\n                return img.path;\n            });\n            logger_1.log(images);\n            const galleryResponse = {\n                objects: images,\n            };\n            logger_1.log(galleryResponse);\n            return this.returnGalleryResponse(galleryResponse);\n        }\n    }\n    async getEmailFromToken(token) {\n        const email = jwt.verify(token, environment_1.getEnv(\"TOKEN_KEY\"));\n        // @ts-ignore\n        return email.email;\n    }\n    async returnGalleryResponse(galleryResponse) {\n        if (galleryResponse) {\n            return {\n                statusCode: 200,\n                content: galleryResponse,\n            };\n        }\n        else {\n            return {\n                statusCode: 404,\n                content: { errorMessage: \"Images not found\" },\n            };\n        }\n    }\n}\nexports.GalleryManager = GalleryManager;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/gallery.manager.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.GalleryManager = void 0;\nconst gallery_service_1 = __webpack_require__(/*! ./gallery.service */ \"./api/gallery/gallery.service.ts\");\nconst image_model_1 = __webpack_require__(/*! @models/MongoDB/image.model */ \"./models/MongoDB/image.model.ts\");\nconst environment_1 = __webpack_require__(/*! @helper/environment */ \"./helper/environment.ts\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nconst db_connection_1 = __webpack_require__(/*! @services/db_connection */ \"./services/db_connection.ts\");\nconst fs = __webpack_require__(/*! fs */ \"fs\");\nconst jwt = __webpack_require__(/*! jsonwebtoken */ \"jsonwebtoken\");\nconst util = __webpack_require__(/*! util */ \"util\");\nconst stat = util.promisify(fs.stat);\nconst path = __webpack_require__(/*! path */ \"path\");\nclass GalleryManager {\n    constructor(payload, token) {\n        this.PATH_TO_IMAGES = path.resolve(path.join(__dirname, \"../../../../images\"));\n        this.service = new gallery_service_1.GalleryService();\n        this.content = payload.files[0].content;\n        this.filename = payload.files[0].filename;\n        this.token = token;\n    }\n    async sendUsersImage(queryParameters, email) {\n        let filter;\n        if (queryParameters.filter == null) {\n            filter = false;\n            const galleryResponse = await this.service.sendGalleryObject(queryParameters);\n            return this.returnGalleryResponse(galleryResponse);\n        }\n        else {\n            logger_1.log(\"EMAIL: \", email);\n            const objects = await image_model_1.default.find({ owner: await email }, { path: 1, _id: 0 }).exec();\n            logger_1.log(objects);\n            const images = objects.map((img) => {\n                return img.path;\n            });\n            logger_1.log(images);\n            const galleryResponse = {\n                objects: images,\n            };\n            logger_1.log(galleryResponse);\n            return this.returnGalleryResponse(galleryResponse);\n        }\n    }\n    async getEmailFromToken(token) {\n        const email = jwt.verify(token, environment_1.getEnv(\"TOKEN_KEY\"));\n        // @ts-ignore\n        return email.email;\n    }\n    async returnGalleryResponse(galleryResponse) {\n        if (galleryResponse) {\n            return {\n                statusCode: 200,\n                content: galleryResponse,\n            };\n        }\n        else {\n            return {\n                statusCode: 404,\n                content: { errorMessage: \"Images not found\" },\n            };\n        }\n    }\n    async isExist(image) {\n        await db_connection_1.connectDB;\n        const exist = await image_model_1.default.findOne({ path: image }, { path: 1 }).then(function (data) {\n            if (data) {\n                return true;\n            }\n            else {\n                return false;\n            }\n        });\n        return exist;\n    }\n    async getMetadata(image) {\n        logger_1.log(image);\n        const stats = await stat(image);\n        logger_1.log(stats);\n        return stats;\n    }\n    async returnResponse(isImageUploaded) {\n        if (isImageUploaded) {\n            return {\n                content: \"Image is successfully uploaded\",\n                statusCode: 200,\n            };\n        }\n        return {\n            content: \"Error occured\",\n            statusCode: 500,\n        };\n    }\n    async saveImages() {\n        await this.service.saveImageLocally(this.filename, this.content);\n        logger_1.log(path.join(this.PATH_TO_IMAGES, this.filename));\n        const stats = await this.getMetadata(path.join(this.PATH_TO_IMAGES, this.filename));\n        const email = await this.getEmailFromToken(this.token);\n        await this.service.saveImageInDB(this.filename, stats, email);\n        return await this.returnResponse(this.isExist(this.filename));\n    }\n}\nexports.GalleryManager = GalleryManager;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/gallery.manager.ts?");
 
 /***/ }),
 
@@ -27,7 +27,7 @@ eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexpo
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.GalleryService = void 0;\nconst image_model_1 = __webpack_require__(/*! @models/MongoDB/image.model */ \"./models/MongoDB/image.model.ts\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nclass GalleryService {\n    async sendGalleryObject(queryParameters) {\n        console.log(\"QUERY: \", queryParameters);\n        const galleryResponse = {\n            objects: await this.getPhotosArray(queryParameters.page, queryParameters.limit),\n            total: await this.getPagesNumber(queryParameters),\n        };\n        logger_1.log(\"GALLERY Response: \", galleryResponse);\n        return galleryResponse;\n    }\n    async getPagesNumber(queryParameters) {\n        let limit = Number(queryParameters.limit);\n        const counts = await image_model_1.default.count();\n        const finalResult = Math.ceil(counts / limit);\n        return finalResult;\n    }\n    async getTotal(queryParameters) {\n        const total = await this.getPagesNumber(queryParameters);\n        return total;\n    }\n    async getPhotosArray(pageNumber, limit) {\n        logger_1.log(\"Page num: \", pageNumber);\n        logger_1.log(\"limit: \", limit);\n        const arr = await this.getValue();\n        const photos = [];\n        limit = Number(limit);\n        pageNumber = Number(pageNumber);\n        for (let i = (pageNumber - 1) * limit; i < limit + (pageNumber - 1) * limit && i < arr.length; i++) {\n            photos.push(arr[i].path);\n            logger_1.log(arr[i] + \" : \" + i);\n        }\n        return photos;\n    }\n    async getValue() {\n        const arr = await image_model_1.default.find({}, { path: 1, _id: 0 }).exec();\n        return arr;\n    }\n}\nexports.GalleryService = GalleryService;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/gallery.service.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.GalleryService = void 0;\nconst image_model_1 = __webpack_require__(/*! @models/MongoDB/image.model */ \"./models/MongoDB/image.model.ts\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nconst path = __webpack_require__(/*! path */ \"path\");\nconst fs = __webpack_require__(/*! fs */ \"fs\");\nclass GalleryService {\n    constructor() {\n        this.FOLDER_PATH = path.resolve(path.join(__dirname, \"../../../../images\"));\n    }\n    async sendGalleryObject(queryParameters) {\n        console.log(\"QUERY: \", queryParameters);\n        const galleryResponse = {\n            objects: await this.getPhotosArray(queryParameters.page, queryParameters.limit),\n            total: await this.getPagesNumber(queryParameters),\n        };\n        logger_1.log(\"GALLERY Response: \", galleryResponse);\n        return galleryResponse;\n    }\n    async getPagesNumber(queryParameters) {\n        let limit = Number(queryParameters.limit);\n        const counts = await image_model_1.default.count();\n        const finalResult = Math.ceil(counts / limit);\n        return finalResult;\n    }\n    async getTotal(queryParameters) {\n        const total = await this.getPagesNumber(queryParameters);\n        return total;\n    }\n    async getPhotosArray(pageNumber, limit) {\n        logger_1.log(\"Page num: \", pageNumber);\n        logger_1.log(\"limit: \", limit);\n        const arr = await this.getValue();\n        const photos = [];\n        limit = Number(limit);\n        pageNumber = Number(pageNumber);\n        for (let i = (pageNumber - 1) * limit; i < limit + (pageNumber - 1) * limit && i < arr.length; i++) {\n            photos.push(arr[i].path);\n            logger_1.log(arr[i] + \" : \" + i);\n        }\n        return photos;\n    }\n    async getValue() {\n        const arr = await image_model_1.default.find({}, { path: 1, _id: 0 }).exec();\n        return arr;\n    }\n    async saveImageInDB(uploadedImage, stats, user) {\n        const image = new image_model_1.default({\n            path: uploadedImage,\n            metadata: stats,\n            owner: user,\n        });\n        await image.save().then((result) => console.log(result));\n    }\n    async saveImageLocally(uploadedImage, uploadedContent) {\n        fs.writeFile(path.join(this.FOLDER_PATH, uploadedImage), uploadedContent, { encoding: null }, (err) => {\n            if (err)\n                console.error(err);\n        });\n    }\n}\nexports.GalleryService = GalleryService;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/gallery.service.ts?");
 
 /***/ }),
 
@@ -38,7 +38,7 @@ eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexpo
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.getGallery = void 0;\nconst gallery_manager_1 = __webpack_require__(/*! ./gallery.manager */ \"./api/gallery/gallery.manager.ts\");\nconst response_1 = __webpack_require__(/*! @helper/http-api/response */ \"./helper/http-api/response.ts\");\nconst error_handler_1 = __webpack_require__(/*! @helper/http-api/error-handler */ \"./helper/http-api/error-handler.ts\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nconst db_connection_1 = __webpack_require__(/*! @services/db_connection */ \"./services/db_connection.ts\");\nconst getGallery = async (event) => {\n    try {\n        await db_connection_1.connectDB;\n        const queryParameters = event.queryStringParameters;\n        const token = event.multiValueHeaders.Authorization.toString().replace(\"Bearer \", \"\");\n        logger_1.log(token);\n        const manager = new gallery_manager_1.GalleryManager();\n        const email = await manager.getEmailFromToken(token);\n        const result = await manager.sendUsersImage(queryParameters, email);\n        logger_1.log(result);\n        return response_1.createResponse(result.statusCode, result.content);\n    }\n    catch (err) {\n        return error_handler_1.errorHandler(err);\n    }\n};\nexports.getGallery = getGallery;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/handler.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.upload = exports.getGallery = void 0;\nconst gallery_manager_1 = __webpack_require__(/*! ./gallery.manager */ \"./api/gallery/gallery.manager.ts\");\nconst response_1 = __webpack_require__(/*! @helper/http-api/response */ \"./helper/http-api/response.ts\");\nconst error_handler_1 = __webpack_require__(/*! @helper/http-api/error-handler */ \"./helper/http-api/error-handler.ts\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nconst db_connection_1 = __webpack_require__(/*! @services/db_connection */ \"./services/db_connection.ts\");\nconst multipartParser = __webpack_require__(/*! lambda-multipart-parser */ \"lambda-multipart-parser\");\nconst getGallery = async (event) => {\n    try {\n        await db_connection_1.connectDB;\n        const queryParameters = event.queryStringParameters;\n        const token = event.multiValueHeaders.Authorization.toString().replace(\"Bearer \", \"\");\n        logger_1.log(token);\n        const manager = new gallery_manager_1.GalleryManager();\n        const email = await manager.getEmailFromToken(token);\n        const result = await manager.sendUsersImage(queryParameters, email);\n        logger_1.log(result);\n        return response_1.createResponse(result.statusCode, result.content);\n    }\n    catch (err) {\n        return error_handler_1.errorHandler(err);\n    }\n};\nexports.getGallery = getGallery;\nconst upload = async (event) => {\n    const payload = await multipartParser.parse(event);\n    const token = await event.multiValueHeaders.Authorization.toString().replace(\"Bearer \", \"\");\n    const manager = new gallery_manager_1.GalleryManager(payload, token);\n    if (await manager.isExist(payload.files[0].filename)) {\n        const response = {\n            statusCode: 309,\n            content: \"Image already exists\",\n        };\n        return response_1.createResponse(response.statusCode, response.content);\n    }\n    const result = await manager.saveImages();\n    return response_1.createResponse(result.statusCode, result.content);\n};\nexports.upload = upload;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/handler.ts?");
 
 /***/ }),
 
@@ -327,6 +327,17 @@ module.exports = require("@redtea/format-axios-error");
 
 /***/ }),
 
+/***/ "fs":
+/*!*********************!*\
+  !*** external "fs" ***!
+  \*********************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("fs");
+
+/***/ }),
+
 /***/ "jsonwebtoken":
 /*!*******************************!*\
   !*** external "jsonwebtoken" ***!
@@ -335,6 +346,17 @@ module.exports = require("@redtea/format-axios-error");
 
 "use strict";
 module.exports = require("jsonwebtoken");
+
+/***/ }),
+
+/***/ "lambda-multipart-parser":
+/*!******************************************!*\
+  !*** external "lambda-multipart-parser" ***!
+  \******************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("lambda-multipart-parser");
 
 /***/ }),
 
@@ -349,6 +371,17 @@ module.exports = require("mongoose");
 
 /***/ }),
 
+/***/ "path":
+/*!***********************!*\
+  !*** external "path" ***!
+  \***********************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("path");
+
+/***/ }),
+
 /***/ "source-map-support":
 /*!*************************************!*\
   !*** external "source-map-support" ***!
@@ -357,6 +390,17 @@ module.exports = require("mongoose");
 
 "use strict";
 module.exports = require("source-map-support");
+
+/***/ }),
+
+/***/ "util":
+/*!***********************!*\
+  !*** external "util" ***!
+  \***********************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("util");
 
 /***/ })
 

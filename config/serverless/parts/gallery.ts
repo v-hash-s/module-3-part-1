@@ -15,20 +15,6 @@ export const galleryConfig: AWSPartitial = {
   },
 
   functions: {
-    // loginGetResponse: {
-    //   handler: "api/gallery/login/handler.loginGetRequestHandler",
-    //   memorySize: 128,
-    //   events: [
-    //     {
-    //       http: {
-    //         path: "/",
-    //         method: "get",
-    //         cors: true,
-    //       },
-    //     },
-    //   ],
-    // },
-
     jwtauth: {
       handler: "api/auth/handler.authenticationJWT",
       memorySize: 128,
@@ -42,24 +28,23 @@ export const galleryConfig: AWSPartitial = {
           http: {
             path: "/gallery",
             method: "get",
-            // authorizer: "authenticationJWT",
             cors: true,
           },
         },
       ],
     },
 
-    // upload: {
-    //   handler: "api/gallery/upload/handler.upload",
-    //   memorySize: 128,
-    //   events: [
-    //     {
-    //       http: {
-    //         path: "/upload",
-    //         method: "post",
-    //       },
-    //     },
-    //   ],
-    // },
+    upload: {
+      handler: "api/gallery/handler.upload",
+      memorySize: 128,
+      events: [
+        {
+          http: {
+            path: "/upload",
+            method: "post",
+          },
+        },
+      ],
+    },
   },
 };

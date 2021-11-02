@@ -3,4 +3,10 @@ interface GalleryResponse {
   objects: Array<string>;
 }
 
-export { GalleryResponse };
+interface QueryParameters {
+  limit?: string;
+  page?: number | string | undefined;
+  filter?: string;
+}
+
+export { GalleryResponse, QueryParameters };

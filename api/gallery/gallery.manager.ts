@@ -8,6 +8,7 @@ import * as jwt from "jsonwebtoken";
 import * as util from "util";
 const stat = util.promisify(fs.stat);
 import * as path from "path";
+import { Response } from "api/gallery/gallery.interfaces";
 
 export class GalleryManager {
   private readonly service: GalleryService;
@@ -99,7 +100,7 @@ export class GalleryManager {
     };
   }
 
-  async saveImages() {
+  async saveImages(): Promise<Response> {
     await this.service.saveImageLocally(this.filename, this.content);
     const stats = await this.getMetadata(
       path.join(this.PATH_TO_IMAGES, this.filename)

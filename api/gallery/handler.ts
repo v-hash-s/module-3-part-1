@@ -5,8 +5,10 @@ import { errorHandler } from "@helper/http-api/error-handler";
 import { log } from "@helper/logger";
 import { connectDB } from "@services/db_connection";
 import * as multipartParser from "lambda-multipart-parser";
+import { Response } from "api/gallery/gallery.interfaces";
 
-export const getGallery: APIGatewayProxyHandlerV2 = async (event) => {
+
+export const getGallery: APIGatewayProxyHandlerV2<Response> = async (event) => {
   try {
     await connectDB;
     const queryParameters = event.queryStringParameters;
@@ -26,7 +28,7 @@ export const getGallery: APIGatewayProxyHandlerV2 = async (event) => {
   }
 };
 
-export const upload: APIGatewayProxyHandlerV2 = async (event) => {
+export const upload: APIGatewayProxyHandlerV2<Response> = async (event) => {
   //@ts-ignore
   const payload = await multipartParser.parse(event);
   //@ts-ignore

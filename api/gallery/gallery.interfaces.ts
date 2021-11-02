@@ -9,4 +9,9 @@ interface QueryParameters {
   filter?: string;
 }
 
-export { GalleryResponse, QueryParameters };
+interface Response {
+  statusCode: number;
+  content: string;
+}
+
+export { GalleryResponse, QueryParameters, Response };

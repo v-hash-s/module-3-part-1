@@ -7,11 +7,22 @@ import { getEnv } from "@helper/environment";
 import { log } from "@helper/logger";
 import * as util from "util";
 const stat = util.promisify(fs.stat);
+import * as path from "path";
+
 export class UploadManager {
   private readonly service: UploadService;
+  private readonly PATH_TO_IMAGES = path.resolve(
+    path.join(__dirname, "../../../../../images")
+  );
+  private readonly content;
+  private readonly filename;
+  private readonly token;
 
-  constructor() {
+  constructor(payload, token) {
     this.service = new UploadService();
+    this.content = payload.files[0].content;
+    this.filename = payload.files[0].filename;
+    this.token = token;
   }
 
   async isExist(image) {
@@ -51,5 +62,15 @@ export class UploadManager {
       content: "Error occured",
       statusCode: 500,
     };
+  }
+
+  async saveImages() {
+    await this.service.saveImageLocally(this.filename, this.content);
+    const stats = await this.getMetadata(
+      path.join(this.PATH_TO_IMAGES, this.filename)
+    );
+    const email = await this.getEmailFromToken(this.token);
+    await this.service.saveImageInDB(this.filename, stats, email);
+    return await this.returnResponse(this.isExist(this.filename));
   }
 }

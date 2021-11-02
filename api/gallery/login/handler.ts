@@ -16,7 +16,6 @@ import { log } from "@helper/logger";
 
 export const login: APIGatewayProxyHandlerV2 = async (event) => {
   try {
-    log(JSON.parse(event.body!));
     const user = JSON.parse(event.body!);
     const manager = new LoginManager();
     const result = await manager.sendResponseToUser(user);

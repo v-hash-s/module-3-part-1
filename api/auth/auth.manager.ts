@@ -4,13 +4,14 @@ import { connectDB } from "@services/db_connection";
 import UserModel from "@models/MongoDB/user.model";
 import * as bcrypt from "bcrypt";
 import { log } from "@helper/logger";
+import { User, Response } from "./auth.interfaces";
 
 export class AuthManager {
   private readonly service: AuthService;
   constructor() {
     this.service = new AuthService();
   }
-  async findUserInDB(user) {
+  async findUserInDB(user: User): Promise<boolean> {
     await connectDB;
 
     const data = await UserModel.findOne({ email: user.email }).then((data) => {
@@ -24,7 +25,7 @@ export class AuthManager {
     return data;
   }
 
-  async sendResponseToUser(user) {
+  async sendResponseToUser(user: User): Promise<Response> {
     let isInDB = await this.findUserInDB(user);
     if (isInDB) {
       return {
@@ -39,23 +40,23 @@ export class AuthManager {
     }
   }
 
-  async signUp(user) {
+  async signUp(user: User): Promise<Response> {
     const isInDB = await this.isUserInDB(user);
     if (isInDB) {
       return {
         statusCode: 400,
-        message: { errorMessage: "User already exists " },
+        content: { errorMessage: "User already exists " },
       };
     } else {
       this.service.createUser(user);
       return {
         statusCode: 200,
-        message: { message: "Signed up" },
+        content: { message: "Signed up" },
       };
     }
   }
 
-  async isUserInDB(user) {
+  async isUserInDB(user: User): Promise<boolean> {
     await connectDB;
 
     const data = await UserModel.findOne({ email: user.email }).then((data) => {

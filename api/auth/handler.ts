@@ -21,7 +21,7 @@ export const signUp = async (event) => {
     const manager = new AuthManager();
     const result = await manager.signUp(user);
 
-    return createResponse(result.statusCode, result.message);
+    return createResponse(result.statusCode, result.content);
   } catch (error) {
     return errorHandler(error);
   }

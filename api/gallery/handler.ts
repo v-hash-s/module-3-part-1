@@ -1,14 +1,16 @@
 import { GalleryManager } from "./gallery.manager";
 import { createResponse } from "@helper/http-api/response";
+import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 import { errorHandler } from "@helper/http-api/error-handler";
 import { log } from "@helper/logger";
 import { connectDB } from "@services/db_connection";
 import * as multipartParser from "lambda-multipart-parser";
 
-export const getGallery = async (event) => {
+export const getGallery: APIGatewayProxyHandlerV2 = async (event) => {
   try {
     await connectDB;
     const queryParameters = event.queryStringParameters;
+    //@ts-ignore
     const token = event.multiValueHeaders.Authorization.toString().replace(
       "Bearer ",
       ""
@@ -24,8 +26,10 @@ export const getGallery = async (event) => {
   }
 };
 
-export const upload = async (event) => {
+export const upload: APIGatewayProxyHandlerV2 = async (event) => {
+  //@ts-ignore
   const payload = await multipartParser.parse(event);
+  //@ts-ignore
   const token = await event.multiValueHeaders.Authorization.toString().replace(
     "Bearer ",
     ""

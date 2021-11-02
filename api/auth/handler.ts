@@ -15,7 +15,7 @@ export const login: APIGatewayProxyHandlerV2 = async (event) => {
   }
 };
 
-export const signUp = async (event) => {
+export const signUp: APIGatewayProxyHandlerV2 = async (event) => {
   try {
     const user = JSON.parse(event.body!);
     const manager = new AuthManager();

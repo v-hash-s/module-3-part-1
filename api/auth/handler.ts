@@ -3,6 +3,7 @@ import { AuthManager } from "./auth.manager";
 import { AuthService } from "./auth.service";
 import { errorHandler } from "../../helper/http-api/error-handler";
 import { createResponse } from "../../helper/http-api/response";
+import { Handler } from "aws-lambda";
 
 export const login: APIGatewayProxyHandlerV2 = async (event) => {
   try {

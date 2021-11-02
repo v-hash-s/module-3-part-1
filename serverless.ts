@@ -1,63 +1,63 @@
-import type { AWS } from '@serverless/typescript';
-import { examplesConfig } from './config/serverless/parts/examples';
-import { getMediaInfoConfig } from './config/serverless/parts/get-media-info';
-import { jobsConfig } from './config/serverless/parts/jobs';
-import { restApiCorsConfig } from './config/serverless/parts/rest-api-cors';
-import { usersConfig } from './config/serverless/parts/users';
-import { joinParts } from './config/serverless/utils';
+import type { AWS } from "@serverless/typescript";
+import { examplesConfig } from "./config/serverless/parts/examples";
+// import { getMediaInfoConfig } from "./config/serverless/parts/get-media-info";
+// import { jobsConfig } from "./config/serverless/parts/jobs";
+// import { restApiCorsConfig } from "./config/serverless/parts/rest-api-cors";
+// import { usersConfig } from "./config/serverless/parts/users";
+import { joinParts } from "./config/serverless/utils";
 
 const masterConfig: AWS = {
-  service: 'template-sls',
-  configValidationMode: 'warn',
-  variablesResolutionMode: '20210326',
-  unresolvedVariablesNotificationMode: 'error',
+  service: "template-sls",
+  configValidationMode: "warn",
+  variablesResolutionMode: "20210326",
+  unresolvedVariablesNotificationMode: "error",
   provider: {
-    name: 'aws',
-    runtime: 'nodejs14.x',
+    name: "aws",
+    runtime: "nodejs14.x",
     stage: '${opt:stage, "dev"}',
-    lambdaHashingVersion: '20201221',
+    lambdaHashingVersion: "20201221",
     // @ts-ignore
-    region: '${file(./env.yml):${self:provider.stage}.REGION}',
-    profile: '${file(./env.yml):${self:provider.stage}.PROFILE}',
+    region: "${file(./env.yml):${self:provider.stage}.REGION}",
+    profile: "${file(./env.yml):${self:provider.stage}.PROFILE}",
     environment: {
-      STAGE: '${self:provider.stage}',
+      STAGE: "${self:provider.stage}",
     },
     tags: {
-      client: '${file(./env.yml):${self:provider.stage}.CLIENT}',
+      client: "${file(./env.yml):${self:provider.stage}.CLIENT}",
     },
     logs: {
       httpApi: true,
     },
     httpApi: {
       useProviderTags: true,
-      payload: '2.0',
+      payload: "2.0",
       cors: true,
     },
   },
   package: {
     individually: true,
-    patterns: ['bin/*'],
+    patterns: ["bin/*"],
   },
   custom: {
     webpack: {
-      webpackConfig: 'webpack.config.js',
+      webpackConfig: "webpack.config.js",
       includeModules: {
-        forceExclude: ['aws-sdk'],
+        forceExclude: ["aws-sdk"],
       },
       concurrency: 5,
       serializedCompile: true,
-      packager: 'npm',
+      packager: "npm",
     },
     prune: {
       automatic: true,
       number: 3,
     },
-    envFiles: ['env.yml'],
+    envFiles: ["env.yml"],
     envEncryptionKeyId: {
-      local: '${file(./kms_key.yml):local}',
-      dev: '${file(./kms_key.yml):dev}',
-      test: '${file(./kms_key.yml):test}',
-      prod: '${file(./kms_key.yml):prod}',
+      local: "${file(./kms_key.yml):local}",
+      dev: "${file(./kms_key.yml):dev}",
+      test: "${file(./kms_key.yml):test}",
+      prod: "${file(./kms_key.yml):prod}",
     },
     // s3: {
     //   host: '0.0.0.0',
@@ -108,20 +108,14 @@ const masterConfig: AWS = {
     // },
   },
   plugins: [
-    '@redtea/serverless-env-generator',
-    'serverless-webpack',
-    'serverless-offline-sqs',
-    'serverless-offline',
+    "@redtea/serverless-env-generator",
+    "serverless-webpack",
+    "serverless-offline-sqs",
+    "serverless-offline",
     // 'serverless-offline-sns',
     // 'serverless-s3-local',
-    'serverless-prune-plugin',
+    "serverless-prune-plugin",
   ],
 };
 
-module.exports = joinParts(masterConfig, [
-  restApiCorsConfig,
-  getMediaInfoConfig,
-  jobsConfig,
-  usersConfig,
-  examplesConfig,
-]);
+module.exports = joinParts(masterConfig, [examplesConfig]);

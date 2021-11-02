@@ -30,7 +30,7 @@ export const examplesConfig: AWSPartitial = {
     // },
 
     login: {
-      handler: "api/gallery/login/handler.login",
+      handler: "api/auth/handler.login",
       memorySize: 128,
       events: [
         {
@@ -43,7 +43,7 @@ export const examplesConfig: AWSPartitial = {
     },
 
     signUp: {
-      handler: "api/gallery/signUp/handler.signUp",
+      handler: "api/auth/handler.signUp",
       memorySize: 128,
       events: [
         {

@@ -6,7 +6,7 @@ import { UploadManager } from "./upload.manager";
 import * as path from "path";
 import { createResponse } from "@helper/http-api/response";
 
-export const uploadImage = async (event) => {
+export const upload = async (event) => {
   const payload = await multipartParser.parse(event);
   const content = payload.files[0].content;
   const filename = payload.files[0].filename;

@@ -15,22 +15,22 @@ export const examplesConfig: AWSPartitial = {
   },
 
   functions: {
-    loginGetResponse: {
-      handler: "api/gallery/login/handler.loginGetRequestHandler",
-      memorySize: 128,
-      events: [
-        {
-          http: {
-            path: "/",
-            method: "get",
-            cors: true,
-          },
-        },
-      ],
-    },
+    // loginGetResponse: {
+    //   handler: "api/gallery/login/handler.loginGetRequestHandler",
+    //   memorySize: 128,
+    //   events: [
+    //     {
+    //       http: {
+    //         path: "/",
+    //         method: "get",
+    //         cors: true,
+    //       },
+    //     },
+    //   ],
+    // },
 
-    loginPostResponse: {
-      handler: "api/gallery/login/handler.loginPostRequestHandler",
+    login: {
+      handler: "api/gallery/login/handler.login",
       memorySize: 128,
       events: [
         {
@@ -65,8 +65,8 @@ export const examplesConfig: AWSPartitial = {
       memorySize: 128,
     },
 
-    galleryGetResponse: {
-      handler: "api/gallery/gallery/handler.getGalleryPage",
+    getGallery: {
+      handler: "api/gallery/gallery/handler.getGallery",
       memorySize: 128,
       events: [
         {
@@ -80,8 +80,8 @@ export const examplesConfig: AWSPartitial = {
       ],
     },
 
-    uploadPostResponse: {
-      handler: "api/gallery/upload/handler.uploadImage",
+    upload: {
+      handler: "api/gallery/upload/handler.upload",
       memorySize: 128,
       events: [
         {

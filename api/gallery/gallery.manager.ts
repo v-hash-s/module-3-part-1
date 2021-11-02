@@ -14,14 +14,14 @@ export class GalleryManager {
   private readonly PATH_TO_IMAGES = path.resolve(
     path.join(__dirname, "../../../../images")
   );
-  private readonly content;
-  private readonly filename;
-  private readonly token;
+  private readonly content?;
+  private readonly filename?;
+  private readonly token?;
 
   constructor(payload?, token?) {
     this.service = new GalleryService();
-    this.content = payload.files[0].content;
-    this.filename = payload.files[0].filename;
+    this.content = payload?.files[0]?.content;
+    this.filename = payload?.files[0]?.filename;
     this.token = token;
   }
 

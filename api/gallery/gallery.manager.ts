@@ -34,21 +34,17 @@ export class GalleryManager {
       );
       return this.returnGalleryResponse(galleryResponse);
     } else {
-      log("EMAIL: ", email);
       const objects = await ImageModel.find(
         { owner: await email },
         { path: 1, _id: 0 }
       ).exec();
-      log(objects);
       const images = objects.map((img: any) => {
         return img.path;
       });
-      log(images);
 
       const galleryResponse = {
         objects: images,
       };
-      log(galleryResponse);
       return this.returnGalleryResponse(galleryResponse);
     }
   }
@@ -86,9 +82,7 @@ export class GalleryManager {
     return exist;
   }
   async getMetadata(image) {
-    log(image);
     const stats = await stat(image);
-    log(stats);
     return stats;
   }
 
@@ -107,7 +101,6 @@ export class GalleryManager {
 
   async saveImages() {
     await this.service.saveImageLocally(this.filename, this.content);
-    log(path.join(this.PATH_TO_IMAGES, this.filename));
     const stats = await this.getMetadata(
       path.join(this.PATH_TO_IMAGES, this.filename)
     );

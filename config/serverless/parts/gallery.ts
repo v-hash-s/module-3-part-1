@@ -16,7 +16,7 @@ export const galleryConfig: AWSPartitial = {
 
   functions: {
     jwtauth: {
-      handler: "api/auth/handler.authenticationJWT",
+      handler: "api/auth/jwt-auth.authenticationJWT",
       memorySize: 128,
     },
 
@@ -26,6 +26,7 @@ export const galleryConfig: AWSPartitial = {
       events: [
         {
           http: {
+            authorizer: "jwtauth",
             path: "/gallery",
             method: "get",
             cors: true,
@@ -40,6 +41,7 @@ export const galleryConfig: AWSPartitial = {
       events: [
         {
           http: {
+            authorizer: "jwtauth",
             path: "/upload",
             method: "post",
           },

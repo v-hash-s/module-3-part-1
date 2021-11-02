@@ -1,5 +1,6 @@
 import type { AWS } from "@serverless/typescript";
 import { examplesConfig } from "./config/serverless/parts/examples";
+import { galleryConfig } from "./config/serverless/parts/gallery";
 // import { getMediaInfoConfig } from "./config/serverless/parts/get-media-info";
 // import { jobsConfig } from "./config/serverless/parts/jobs";
 // import { restApiCorsConfig } from "./config/serverless/parts/rest-api-cors";
@@ -118,4 +119,4 @@ const masterConfig: AWS = {
   ],
 };
 
-module.exports = joinParts(masterConfig, [examplesConfig]);
+module.exports = joinParts(masterConfig, [examplesConfig, galleryConfig]);

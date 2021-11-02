@@ -9,36 +9,36 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./api/gallery/gallery/gallery.manager.ts":
-/*!************************************************!*\
-  !*** ./api/gallery/gallery/gallery.manager.ts ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.GalleryManager = void 0;\nconst gallery_service_1 = __webpack_require__(/*! ./gallery.service */ \"./api/gallery/gallery/gallery.service.ts\");\nconst image_model_1 = __webpack_require__(/*! @models/MongoDB/image.model */ \"./models/MongoDB/image.model.ts\");\nconst environment_1 = __webpack_require__(/*! @helper/environment */ \"./helper/environment.ts\");\nconst jwt = __webpack_require__(/*! jsonwebtoken */ \"jsonwebtoken\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nclass GalleryManager {\n    constructor() {\n        this.service = new gallery_service_1.GalleryService();\n    }\n    async sendUsersImage(queryParameters, email) {\n        let filter;\n        if (queryParameters.filter == null) {\n            filter = false;\n            const galleryResponse = await this.service.sendGalleryObject(queryParameters);\n            return this.returnGalleryResponse(galleryResponse);\n        }\n        else {\n            logger_1.log(\"EMAIL: \", email);\n            const objects = await image_model_1.default.find({ owner: await email }, { path: 1, _id: 0 }).exec();\n            logger_1.log(objects);\n            const images = objects.map((img) => {\n                return img.path;\n            });\n            logger_1.log(images);\n            const galleryResponse = {\n                objects: images,\n            };\n            logger_1.log(galleryResponse);\n            return this.returnGalleryResponse(galleryResponse);\n        }\n    }\n    async getEmailFromToken(token) {\n        const email = jwt.verify(token, environment_1.getEnv(\"TOKEN_KEY\"));\n        // @ts-ignore\n        return email.email;\n    }\n    async returnGalleryResponse(galleryResponse) {\n        if (galleryResponse) {\n            return {\n                statusCode: 200,\n                content: galleryResponse,\n            };\n        }\n        else {\n            return {\n                statusCode: 404,\n                content: { errorMessage: \"Images not found\" },\n            };\n        }\n    }\n}\nexports.GalleryManager = GalleryManager;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/gallery/gallery.manager.ts?");
-
-/***/ }),
-
-/***/ "./api/gallery/gallery/gallery.service.ts":
-/*!************************************************!*\
-  !*** ./api/gallery/gallery/gallery.service.ts ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.GalleryService = void 0;\nconst image_model_1 = __webpack_require__(/*! @models/MongoDB/image.model */ \"./models/MongoDB/image.model.ts\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nclass GalleryService {\n    async sendGalleryObject(queryParameters) {\n        console.log(\"QUERY: \", queryParameters);\n        const galleryResponse = {\n            objects: await this.getPhotosArray(queryParameters.page, queryParameters.limit),\n            total: await this.getPagesNumber(queryParameters),\n        };\n        logger_1.log(\"GALLERY Response: \", galleryResponse);\n        return galleryResponse;\n    }\n    async getPagesNumber(queryParameters) {\n        let limit = Number(queryParameters.limit);\n        const counts = await image_model_1.default.count();\n        const finalResult = Math.ceil(counts / limit);\n        return finalResult;\n    }\n    async getTotal(queryParameters) {\n        const total = await this.getPagesNumber(queryParameters);\n        return total;\n    }\n    async getPhotosArray(pageNumber, limit) {\n        logger_1.log(\"Page num: \", pageNumber);\n        logger_1.log(\"limit: \", limit);\n        const arr = await this.getValue();\n        const photos = [];\n        limit = Number(limit);\n        pageNumber = Number(pageNumber);\n        for (let i = (pageNumber - 1) * limit; i < limit + (pageNumber - 1) * limit && i < arr.length; i++) {\n            photos.push(arr[i].path);\n            logger_1.log(arr[i] + \" : \" + i);\n        }\n        return photos;\n    }\n    async getValue() {\n        const arr = await image_model_1.default.find({}, { path: 1, _id: 0 }).exec();\n        return arr;\n    }\n}\nexports.GalleryService = GalleryService;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/gallery/gallery.service.ts?");
-
-/***/ }),
-
-/***/ "./api/gallery/gallery/handler.ts":
+/***/ "./api/gallery/gallery.manager.ts":
 /*!****************************************!*\
-  !*** ./api/gallery/gallery/handler.ts ***!
+  !*** ./api/gallery/gallery.manager.ts ***!
   \****************************************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.getGallery = void 0;\nconst gallery_manager_1 = __webpack_require__(/*! ./gallery.manager */ \"./api/gallery/gallery/gallery.manager.ts\");\nconst response_1 = __webpack_require__(/*! @helper/http-api/response */ \"./helper/http-api/response.ts\");\nconst error_handler_1 = __webpack_require__(/*! @helper/http-api/error-handler */ \"./helper/http-api/error-handler.ts\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nconst db_connection_1 = __webpack_require__(/*! @services/db_connection */ \"./services/db_connection.ts\");\nconst getGallery = async (event) => {\n    try {\n        await db_connection_1.connectDB;\n        const queryParameters = event.queryStringParameters;\n        const token = event.multiValueHeaders.Authorization.toString().replace(\"Bearer \", \"\");\n        logger_1.log(token);\n        const manager = new gallery_manager_1.GalleryManager();\n        const email = await manager.getEmailFromToken(token);\n        const result = await manager.sendUsersImage(queryParameters, email);\n        logger_1.log(result);\n        return response_1.createResponse(result.statusCode, result.content);\n    }\n    catch (err) {\n        return error_handler_1.errorHandler(err);\n    }\n};\nexports.getGallery = getGallery;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/gallery/handler.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.GalleryManager = void 0;\nconst gallery_service_1 = __webpack_require__(/*! ./gallery.service */ \"./api/gallery/gallery.service.ts\");\nconst image_model_1 = __webpack_require__(/*! @models/MongoDB/image.model */ \"./models/MongoDB/image.model.ts\");\nconst environment_1 = __webpack_require__(/*! @helper/environment */ \"./helper/environment.ts\");\nconst jwt = __webpack_require__(/*! jsonwebtoken */ \"jsonwebtoken\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nclass GalleryManager {\n    constructor() {\n        this.service = new gallery_service_1.GalleryService();\n    }\n    async sendUsersImage(queryParameters, email) {\n        let filter;\n        if (queryParameters.filter == null) {\n            filter = false;\n            const galleryResponse = await this.service.sendGalleryObject(queryParameters);\n            return this.returnGalleryResponse(galleryResponse);\n        }\n        else {\n            logger_1.log(\"EMAIL: \", email);\n            const objects = await image_model_1.default.find({ owner: await email }, { path: 1, _id: 0 }).exec();\n            logger_1.log(objects);\n            const images = objects.map((img) => {\n                return img.path;\n            });\n            logger_1.log(images);\n            const galleryResponse = {\n                objects: images,\n            };\n            logger_1.log(galleryResponse);\n            return this.returnGalleryResponse(galleryResponse);\n        }\n    }\n    async getEmailFromToken(token) {\n        const email = jwt.verify(token, environment_1.getEnv(\"TOKEN_KEY\"));\n        // @ts-ignore\n        return email.email;\n    }\n    async returnGalleryResponse(galleryResponse) {\n        if (galleryResponse) {\n            return {\n                statusCode: 200,\n                content: galleryResponse,\n            };\n        }\n        else {\n            return {\n                statusCode: 404,\n                content: { errorMessage: \"Images not found\" },\n            };\n        }\n    }\n}\nexports.GalleryManager = GalleryManager;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/gallery.manager.ts?");
+
+/***/ }),
+
+/***/ "./api/gallery/gallery.service.ts":
+/*!****************************************!*\
+  !*** ./api/gallery/gallery.service.ts ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.GalleryService = void 0;\nconst image_model_1 = __webpack_require__(/*! @models/MongoDB/image.model */ \"./models/MongoDB/image.model.ts\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nclass GalleryService {\n    async sendGalleryObject(queryParameters) {\n        console.log(\"QUERY: \", queryParameters);\n        const galleryResponse = {\n            objects: await this.getPhotosArray(queryParameters.page, queryParameters.limit),\n            total: await this.getPagesNumber(queryParameters),\n        };\n        logger_1.log(\"GALLERY Response: \", galleryResponse);\n        return galleryResponse;\n    }\n    async getPagesNumber(queryParameters) {\n        let limit = Number(queryParameters.limit);\n        const counts = await image_model_1.default.count();\n        const finalResult = Math.ceil(counts / limit);\n        return finalResult;\n    }\n    async getTotal(queryParameters) {\n        const total = await this.getPagesNumber(queryParameters);\n        return total;\n    }\n    async getPhotosArray(pageNumber, limit) {\n        logger_1.log(\"Page num: \", pageNumber);\n        logger_1.log(\"limit: \", limit);\n        const arr = await this.getValue();\n        const photos = [];\n        limit = Number(limit);\n        pageNumber = Number(pageNumber);\n        for (let i = (pageNumber - 1) * limit; i < limit + (pageNumber - 1) * limit && i < arr.length; i++) {\n            photos.push(arr[i].path);\n            logger_1.log(arr[i] + \" : \" + i);\n        }\n        return photos;\n    }\n    async getValue() {\n        const arr = await image_model_1.default.find({}, { path: 1, _id: 0 }).exec();\n        return arr;\n    }\n}\nexports.GalleryService = GalleryService;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/gallery.service.ts?");
+
+/***/ }),
+
+/***/ "./api/gallery/handler.ts":
+/*!********************************!*\
+  !*** ./api/gallery/handler.ts ***!
+  \********************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.getGallery = void 0;\nconst gallery_manager_1 = __webpack_require__(/*! ./gallery.manager */ \"./api/gallery/gallery.manager.ts\");\nconst response_1 = __webpack_require__(/*! @helper/http-api/response */ \"./helper/http-api/response.ts\");\nconst error_handler_1 = __webpack_require__(/*! @helper/http-api/error-handler */ \"./helper/http-api/error-handler.ts\");\nconst logger_1 = __webpack_require__(/*! @helper/logger */ \"./helper/logger.ts\");\nconst db_connection_1 = __webpack_require__(/*! @services/db_connection */ \"./services/db_connection.ts\");\nconst getGallery = async (event) => {\n    try {\n        await db_connection_1.connectDB;\n        const queryParameters = event.queryStringParameters;\n        const token = event.multiValueHeaders.Authorization.toString().replace(\"Bearer \", \"\");\n        logger_1.log(token);\n        const manager = new gallery_manager_1.GalleryManager();\n        const email = await manager.getEmailFromToken(token);\n        const result = await manager.sendUsersImage(queryParameters, email);\n        logger_1.log(result);\n        return response_1.createResponse(result.statusCode, result.content);\n    }\n    catch (err) {\n        return error_handler_1.errorHandler(err);\n    }\n};\nexports.getGallery = getGallery;\n\n\n//# sourceURL=webpack://template-aws-sls/./api/gallery/handler.ts?");
 
 /***/ }),
 
@@ -392,7 +392,7 @@ module.exports = require("source-map-support");
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module can't be inlined because the eval devtool is used.
 /******/ 	__webpack_require__("./source-map-install.js");
-/******/ 	var __webpack_exports__ = __webpack_require__("./api/gallery/gallery/handler.ts");
+/******/ 	var __webpack_exports__ = __webpack_require__("./api/gallery/handler.ts");
 /******/ 	var __webpack_export_target__ = exports;
 /******/ 	for(var i in __webpack_exports__) __webpack_export_target__[i] = __webpack_exports__[i];
 /******/ 	if(__webpack_exports__.__esModule) Object.defineProperty(__webpack_export_target__, "__esModule", { value: true });

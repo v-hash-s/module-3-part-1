@@ -65,20 +65,20 @@ export const examplesConfig: AWSPartitial = {
       memorySize: 128,
     },
 
-    getGallery: {
-      handler: "api/gallery/gallery/handler.getGallery",
-      memorySize: 128,
-      events: [
-        {
-          http: {
-            path: "/gallery",
-            method: "get",
-            // authorizer: "authenticationJWT",
-            cors: true,
-          },
-        },
-      ],
-    },
+    // getGallery: {
+    //   handler: "api/gallery/gallery/handler.getGallery",
+    //   memorySize: 128,
+    //   events: [
+    //     {
+    //       http: {
+    //         path: "/gallery",
+    //         method: "get",
+    //         // authorizer: "authenticationJWT",
+    //         cors: true,
+    //       },
+    //     },
+    //   ],
+    // },
 
     upload: {
       handler: "api/gallery/upload/handler.upload",
